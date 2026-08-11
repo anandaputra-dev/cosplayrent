@@ -1,9 +1,13 @@
 <?php
-$hostname = "localhost";
-$username = "root";
-$password = "";
-$database = "rental_kostum";
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "rental_kostum";
 
-$connect = mysqli_connect($hostname, $username, $password, $database);
+$conn = mysqli_connect($host, $user, $pass, $db);
 
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
+session_start();
 ?>
