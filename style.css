@@ -1,0 +1,210 @@
+/* ==========================================
+   1. VARIABEL TEMA: DARK MODE (DEFAULT)
+   ========================================== */
+:root, [data-bs-theme="dark"] {
+    --bg-main: #070510;
+    --grid-color: rgba(255, 255, 255, 0.03);
+    --nav-bg: rgba(7, 5, 16, 0.85);
+    
+    --card-bg: rgba(19, 13, 42, 0.75);
+    --card-border: rgba(176, 0, 255, 0.25);
+    
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b8;
+    --text-muted: #6c757d;
+    
+    --neon-purple: #b000ff;
+    --neon-cyan: #00d4ff;
+    
+    --badge-bg: rgba(176, 0, 255, 0.2);
+    --badge-border: #b000ff;
+    --badge-text: #e088ff;
+    
+    --input-bg: rgba(11, 7, 25, 0.8);
+    --input-border: rgba(176, 0, 255, 0.3);
+}
+
+/* ==========================================
+   2. VARIABEL TEMA: LIGHT MODE (FIGMA MATCH)
+   ========================================== */
+[data-bs-theme="light"] {
+    --bg-main: #f5f3ff; /* Soft lavender background khas Figma */
+    --grid-color: rgba(176, 0, 255, 0.06);
+    --nav-bg: rgba(245, 243, 255, 0.85);
+    
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-border: rgba(176, 0, 255, 0.2);
+    
+    --text-primary: #1e1035; /* Teks ungu sangat gelap agar tidak silau */
+    --text-secondary: #5a5278;
+    --text-muted: #8c85a6;
+    
+    --badge-bg: rgba(176, 0, 255, 0.1);
+    --badge-border: rgba(176, 0, 255, 0.4);
+    --badge-text: #8e00ce;
+    
+    --input-bg: #ffffff;
+    --input-border: rgba(176, 0, 255, 0.2);
+}
+
+/* ==========================================
+   3. GAYA UTAMA & LAYOUT
+   ========================================== */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+    
+    /* Background Pattern Grid Transparan */
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* NAVBAR */
+.navbar-custom {
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+    transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-primary) !important;
+    background: rgba(176, 0, 255, 0.12);
+    border-radius: 8px;
+}
+
+/* CARDS & GLASSMORPHISM */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    border-color: var(--neon-cyan);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(176, 0, 255, 0.15);
+}
+
+/* TYPOGRAPHY */
+.title-fantasy {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* BUTTONS */
+.btn-neon {
+    background: linear-gradient(90deg, #b000ff, #7900ff);
+    color: #ffffff !important;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 24px;
+    box-shadow: 0 0 20px rgba(176, 0, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-neon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(176, 0, 255, 0.7);
+}
+
+.btn-outline-custom {
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px 24px;
+    background: var(--card-bg);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-custom:hover {
+    border-color: var(--neon-purple);
+    color: var(--text-primary);
+}
+
+/* FORM CONTROL & SELECT */
+.form-control, .form-select {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--neon-purple) !important;
+    box-shadow: 0 0 12px rgba(176, 0, 255, 0.3);
+}
+
+/* BADGES & PILLS */
+.badge-pill-custom {
+    background: var(--badge-bg);
+    border: 1px solid var(--badge-border);
+    color: var(--badge-text);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 0.75rem;
+}
+
+.filter-pill {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    border-radius: 30px;
+    padding: 8px 22px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.filter-pill.active, .filter-pill:hover {
+    background: var(--neon-purple);
+    color: #ffffff !important;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 15px rgba(176, 0, 255, 0.4);
+}
+
+/* HERO IMAGE STACKING */
+.hero-img-box {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+}
+
+.floating-stat-box {
+    position: absolute;
+    bottom: 20px;
+    left: -20px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 15px 25px;
+    z-index: 10;
+}

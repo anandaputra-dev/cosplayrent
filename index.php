@@ -29,170 +29,28 @@ $query = mysqli_query($conn, $sql);
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts untuk Header Fantasi -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <style>
-        :root {
-            --bg-dark: #070510;
-            --card-bg: rgba(20, 14, 40, 0.7);
-            --border-purple: rgba(176, 0, 255, 0.25);
-            --neon-purple: #b000ff;
-            --neon-cyan: #00d4ff;
-            --font-fantasy: 'Cinzel', serif;
-            --font-main: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            font-family: var(--font-main);
-            overflow-x: hidden;
-            /* Pattern Grid Transparan Sesuai Gambar Figma */
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* NAVBAR */
-        .navbar-custom {
-            background: rgba(7, 5, 16, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .nav-link {
-            color: #a0a0b8 !important;
-            font-weight: 500;
-            margin: 0 10px;
-            transition: 0.3s;
-        }
-        .nav-link:hover, .nav-link.active {
-            color: #ffffff !important;
-            background: rgba(176, 0, 255, 0.15);
-            border-radius: 8px;
-        }
-
-        /* GRADIENT TEXT & HEADING */
-        .title-fantasy {
-            font-family: var(--font-fantasy);
-            font-weight: 900;
-            letter-spacing: 2px;
-            line-height: 1.1;
-        }
-        .text-gradient {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* BUTTONS */
-        .btn-neon {
-            background: linear-gradient(90deg, #b000ff, #7900ff);
-            color: #fff;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 28px;
-            box-shadow: 0 0 20px rgba(176, 0, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-        .btn-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(176, 0, 255, 0.7);
-            color: #fff;
-        }
-        .btn-outline-custom {
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border-radius: 12px;
-            padding: 12px 28px;
-            backdrop-filter: blur(5px);
-        }
-
-        /* CARD STYLING */
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-purple);
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-        .glass-card:hover {
-            border-color: var(--neon-cyan);
-            transform: translateY(-8px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.15);
-        }
-
-        /* BADGES */
-        .badge-pill-custom {
-            background: rgba(176, 0, 255, 0.2);
-            border: 1px solid var(--neon-purple);
-            color: #e088ff;
-            border-radius: 50px;
-            padding: 6px 16px;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-        }
-        .badge-available {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid #00ff88;
-            color: #00ff88;
-        }
-
-        /* IMAGE FLOATING OVERLAY (HERO SECTION) */
-        .hero-img-box {
-            position: relative;
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--border-purple);
-        }
-        .floating-stat-box {
-            position: absolute;
-            bottom: 20px;
-            left: -20px;
-            background: rgba(15, 10, 30, 0.9);
-            border: 1px solid var(--neon-purple);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 15px 25px;
-            z-index: 10;
-        }
-
-        /* CATEGORY FILTER PILLS */
-        .filter-pill {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #8f8fa8;
-            border-radius: 30px;
-            padding: 8px 24px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .filter-pill.active, .filter-pill:hover {
-            background: var(--neon-purple);
-            color: #fff;
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 15px rgba(176, 0, 255, 0.5);
-        }
-    </style>
+    
+    <!-- CSS KUSTOM BARU -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- NAVBAR PRESISI FIGMA -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#">
-            <div class="bg-gradient p-2 rounded-3" style="background: linear-gradient(135deg, #00d4ff, #b000ff);">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="index.php">
+            <div class="p-2 rounded-3" style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));">
                 <i class="bi bi-mask text-white"></i>
             </div>
             <span class="fs-4 tracking-wider">COSPLAY<span style="color:var(--neon-purple)">RENT</span></span>
         </a>
         
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-2"></i>
         </button>
 
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
@@ -201,12 +59,14 @@ $query = mysqli_query($conn, $sql);
                 <li class="nav-item"><a class="nav-link px-3" href="#katalog">Katalog</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="#cara-sewa">Cara Sewa</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="#event">Event</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#kontak">Kontak</a></li>
             </ul>
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary rounded-circle" id="themeToggle" style="width: 42px; height: 42px;">
+            <!-- TOGGLE LIGHT/DARK MODE -->
+            <button class="btn rounded-circle d-flex align-items-center justify-content-center p-0" 
+                    id="themeToggle" 
+                    style="width: 42px; height: 42px; transition: all 0.3s ease;">
                 <i class="bi bi-sun-fill text-warning"></i>
             </button>
             <a href="auth.php" class="btn btn-neon">Sewa Sekarang</a>
@@ -214,7 +74,7 @@ $query = mysqli_query($conn, $sql);
     </div>
 </nav>
 
-<!-- HERO SECTION (FIGMA MATCH) -->
+<!-- HERO SECTION -->
 <section id="beranda" class="py-5 my-4">
     <div class="container">
         <div class="row align-items-center g-5">
@@ -256,7 +116,7 @@ $query = mysqli_query($conn, $sql);
                 </div>
             </div>
 
-            <!-- HERO GALLERY STAGGERED (Sesuai Desain Figma) -->
+            <!-- HERO GALLERY STAGGERED -->
             <div class="col-lg-6">
                 <div class="row g-3 position-relative">
                     <div class="col-7 position-relative">
@@ -282,7 +142,7 @@ $query = mysqli_query($conn, $sql);
     </div>
 </section>
 
-<!-- KATALOG SECTION & FILTER KOTA -->
+<!-- KATALOG SECTION -->
 <section id="katalog" class="py-5">
     <div class="container">
         <div class="text-center mb-5">
@@ -292,18 +152,18 @@ $query = mysqli_query($conn, $sql);
             
             <!-- FILTER KOTA & SEARCH -->
             <form method="GET" action="#katalog" class="row justify-content-center g-2 mt-4">
-                <div class="col-md-3">
-                    <select name="kota" class="form-select glass-card text-white py-2" onchange="this.form.submit()">
-                        <option value="" class="bg-dark">📍 Semua Lokasi Kota</option>
-                        <option value="Jakarta" class="bg-dark" <?= $kota_filter == 'Jakarta' ? 'selected' : '' ?>>Jakarta</option>
-                        <option value="Bandung" class="bg-dark" <?= $kota_filter == 'Bandung' ? 'selected' : '' ?>>Bandung</option>
-                        <option value="Yogyakarta" class="bg-dark" <?= $kota_filter == 'Yogyakarta' ? 'selected' : '' ?>>Yogyakarta</option>
-                        <option value="Surabaya" class="bg-dark" <?= $kota_filter == 'Surabaya' ? 'selected' : '' ?>>Surabaya</option>
+                <div class="col-md-4">
+                    <select name="kota" class="form-select py-2" onchange="this.form.submit()">
+                        <option value="">📍 Semua Lokasi Kota</option>
+                        <option value="Jakarta" <?= $kota_filter == 'Jakarta' ? 'selected' : '' ?>>Jakarta</option>
+                        <option value="Bandung" <?= $kota_filter == 'Bandung' ? 'selected' : '' ?>>Bandung</option>
+                        <option value="Yogyakarta" <?= $kota_filter == 'Yogyakarta' ? 'selected' : '' ?>>Yogyakarta</option>
+                        <option value="Surabaya" <?= $kota_filter == 'Surabaya' ? 'selected' : '' ?>>Surabaya</option>
                     </select>
                 </div>
             </form>
 
-            <!-- FILTER KATEGORI BUTTONS -->
+            <!-- FILTER KATEGORI -->
             <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
                 <a href="?#katalog" class="filter-pill <?= empty($kategori_filter) ? 'active' : '' ?>">Semua</a>
                 <a href="?kategori=Anime#katalog" class="filter-pill <?= $kategori_filter == 'Anime' ? 'active' : '' ?>">Anime</a>
@@ -321,14 +181,14 @@ $query = mysqli_query($conn, $sql);
                             <div>
                                 <div class="position-relative mb-3">
                                     <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=500" class="img-fluid rounded-4 w-100" style="height: 280px; object-fit: cover;" alt="Kostum">
-                                    <span class="badge badge-available position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
+                                    <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill bg-success bg-opacity-75">
                                         • <?= ucfirst($row['status']) ?>
                                     </span>
                                 </div>
                                 <span class="badge bg-secondary bg-opacity-25 text-info mb-2"><?= $row['nama_kategori'] ?? 'Cosplay' ?></span>
                                 <h4 class="fw-bold mb-1"><?= $row['nama_kostum'] ?></h4>
                                 <p class="text-secondary small mb-3">
-                                    <i class="bi bi-geo-alt text-danger me-1"></i> Jakarta Studio | Ukuran: <?= $row['ukuran'] ?>
+                                    <i class="bi bi-geo-alt text-danger me-1"></i> Studio | Ukuran: <?= $row['ukuran'] ?>
                                 </p>
                             </div>
                             <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
@@ -343,69 +203,44 @@ $query = mysqli_query($conn, $sql);
                 <?php endwhile; ?>
             <?php else: ?>
                 <div class="col-12 text-center py-5 text-secondary">
-                    <i class="bi bi-search fs-1"></i>
-                    <p class="mt-2">Kostum tidak ditemukan untuk filter ini.</p>
+                    <i class="bi bi-search fs-1 d-block mb-2"></i>
+                    <p>Kostum tidak ditemukan untuk filter ini.</p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
 </section>
 
-<!-- JADWAL EVENT COSPLAY -->
-<section id="event" class="py-5 my-4">
-    <div class="container">
-        <div class="glass-card p-5">
-            <div class="row align-items-center">
-                <div class="col-md-5">
-                    <span class="text-uppercase text-gradient fw-bold">JADWAL EVENT TERKINI</span>
-                    <h2 class="title-fantasy mt-2">SIAP TAMPIL DI <span class="text-gradient">EVENT COSPLAY?</span></h2>
-                    <p class="text-secondary">Booking kostum favoritmu lebih awal sebelum kehabisan slot pada tanggal event mendatang.</p>
-                </div>
-                <div class="col-md-7">
-                    <div class="d-flex flex-column gap-3">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
-                            <div class="d-flex gap-3 align-items-center">
-                                <div class="text-center p-2 rounded-3 bg-primary bg-opacity-25 text-primary" style="min-width: 60px;">
-                                    <span class="fw-bold fs-4 d-block">25</span>
-                                    <small>MEI</small>
-                                </div>
-                                <div>
-                                    <h5 class="fw-bold mb-0">Comic Frontier (Comifuro) 18</h5>
-                                    <small class="text-secondary">📍 ICE BSD, Tangerang</small>
-                                </div>
-                            </div>
-                            <a href="#katalog" class="btn btn-outline-custom btn-sm">Sewa Kostum</a>
-                        </div>
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
-                            <div class="d-flex gap-3 align-items-center">
-                                <div class="text-center p-2 rounded-3 bg-purple bg-opacity-25 text-purple" style="min-width: 60px; background: rgba(176,0,255,0.2); color:#b000ff;">
-                                    <span class="fw-bold fs-4 d-block">15</span>
-                                    <small>JUNI</small>
-                                </div>
-                                <div>
-                                    <h5 class="fw-bold mb-0">Indonesia Anime Con (INACON)</h5>
-                                    <small class="text-secondary">📍 JCC Senayan, Jakarta</small>
-                                </div>
-                            </div>
-                            <a href="#katalog" class="btn btn-outline-custom btn-sm">Sewa Kostum</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- JS SCRIPTS -->
+<!-- SCRIPT SWITCHING TEMA -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Theme Toggle Functionality (Light/Dark Mode)
-    const themeToggleBtn = document.getElementById('themeToggle');
-    themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-bs-theme', newTheme);
-        themeToggleBtn.innerHTML = newTheme === 'dark' ? '<i class="bi bi-sun-fill text-warning"></i>' : '<i class="bi bi-moon-stars-fill text-dark"></i>';
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('cosplayrent_theme') || 'dark';
+        setTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        });
+
+        function setTheme(theme) {
+            htmlElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('cosplayrent_theme', theme);
+            
+            if (theme === 'light') {
+                themeToggleBtn.innerHTML = '<i class="bi bi-moon-stars-fill" style="color: #ff9800;"></i>';
+                themeToggleBtn.style.backgroundColor = '#ffffff';
+                themeToggleBtn.style.borderColor = 'rgba(176, 0, 255, 0.2)';
+            } else {
+                themeToggleBtn.innerHTML = '<i class="bi bi-sun-fill" style="color: #ffc107;"></i>';
+                themeToggleBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                themeToggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        }
     });
 </script>
 </body>

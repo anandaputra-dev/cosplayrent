@@ -19,45 +19,49 @@ $result = mysqli_query($conn, $query);
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Pelanggan - CosplayRent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CosplayRent</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        body { background-color: #070510; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .sidebar { background: #0f0a21; border-right: 1px solid rgba(176,0,255,0.2); min-height: 100vh; }
-        .glass-card { background: rgba(20, 14, 40, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(176,0,255,0.2); border-radius: 16px; }
-        .nav-link.active { background: linear-gradient(90deg, #b000ff, #7900ff) !important; }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row">
         <!-- SIDEBAR -->
-        <div class="col-md-2 sidebar p-4">
-            <h4 class="fw-bold text-info mb-4">COSPLAY<span class="text-white">RENT</span></h4>
+        <div class="col-md-2 p-4 min-vh-100 border-end border-secondary border-opacity-25" style="background: var(--nav-bg);">
+            <a href="index.php" class="text-decoration-none">
+                <h4 class="fw-bold tracking-wider mb-4">COSPLAY<span style="color:var(--neon-purple)">RENT</span></h4>
+            </a>
             <div class="nav flex-column nav-pills gap-2">
-                <a class="nav-link active text-white" href="#"><i class="bi bi-clock-history me-2"></i>Riwayat Sewa</a>
-                <a class="nav-link text-secondary" href="index.php#katalog"><i class="bi bi-grid me-2"></i>Katalog Kostum</a>
+                <a class="nav-link active" href="#"><i class="bi bi-clock-history me-2"></i>Riwayat Sewa</a>
+                <a class="nav-link" href="index.php#katalog"><i class="bi bi-grid me-2"></i>Katalog Kostum</a>
                 <a class="nav-link text-danger mt-5" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Keluar</a>
             </div>
         </div>
 
-        <!-- CONTENT -->
+        <!-- CONTENT AREA -->
         <div class="col-md-10 p-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2>Halo, <span style="color:#00d4ff"><?= $_SESSION['nama']; ?></span> 👋</h2>
-                    <p class="text-secondary">Kelola pesanan dan jadwal sewa kostummu di sini.</p>
+                    <h2 class="title-fantasy mb-1">Halo, <span class="text-gradient"><?= $_SESSION['nama']; ?></span> 👋</h2>
+                    <p class="text-secondary">Kelola pesanan dan riwayat sewa kostummu di sini.</p>
                 </div>
+                <button class="btn rounded-circle d-flex align-items-center justify-content-center p-0" id="themeToggle" style="width: 42px; height: 42px;">
+                    <i class="bi bi-sun-fill text-warning"></i>
+                </button>
             </div>
 
             <div class="glass-card p-4">
-                <h5 class="fw-bold mb-4"><i class="bi bi-receipt me-2 text-primary"></i>Pesanan Aktif & Riwayat</h5>
+                <h5 class="fw-bold mb-4"><i class="bi bi-receipt me-2 text-info"></i>Pesanan Aktif & Riwayat</h5>
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
+                    <table class="table align-middle text-nowrap" style="color: var(--text-primary);">
                         <thead>
-                            <tr class="text-secondary">
+                            <tr class="text-secondary border-bottom border-secondary border-opacity-25">
                                 <th>#ID PESANAN</th>
                                 <th>TANGGAL SEWA</th>
                                 <th>TOTAL BIAYA</th>
@@ -68,10 +72,10 @@ $result = mysqli_query($conn, $query);
                         <tbody>
                             <?php if (mysqli_num_rows($result) > 0): ?>
                                 <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                    <tr>
+                                    <tr class="border-bottom border-secondary border-opacity-10">
                                         <td class="fw-bold text-info">#RENT-<?= $row['id'] ?></td>
                                         <td><?= $row['tanggal_mulai'] ?> s/d <?= $row['tanggal_selesai'] ?></td>
-                                        <td class="fw-bold">Rp <?= number_format($row['total_biaya_sewa'], 0, ',', '.') ?></td>
+                                        <td class="fw-bold text-gradient">Rp <?= number_format($row['total_biaya_sewa'], 0, ',', '.') ?></td>
                                         <td><span class="badge bg-warning text-dark"><?= ucfirst($row['status_pembayaran']) ?></span></td>
                                         <td><span class="badge bg-info text-dark"><?= ucfirst($row['status_sewa']) ?></span></td>
                                     </tr>
@@ -89,5 +93,27 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('cosplayrent_theme') || 'dark';
+        setTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        function setTheme(theme) {
+            htmlElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('cosplayrent_theme', theme);
+            themeToggleBtn.innerHTML = theme === 'light' ? 
+                '<i class="bi bi-moon-stars-fill" style="color: #ff9800;"></i>' : 
+                '<i class="bi bi-sun-fill" style="color: #ffc107;"></i>';
+        }
+    });
+</script>
 </body>
 </html>
