@@ -104,7 +104,7 @@ $query = mysqli_query($conn, $sql);
                                     <span class="fs-5 fw-bold text-primary">Rp <?= number_format($row['harga_sewa_per_hari'], 0, ',', '.') ?></span>
                                     <small class="text-muted">/hari</small>
                                 </div>
-                                <a href="auth.php" class="btn btn-purple btn-sm px-3">Sewa</a>
+                                <a href="booking.php?id=<?= $row['id'] ?>" class="btn btn-neon py-2 px-4">Sewa</a>
                             </div>
                         </div>
                     </div>

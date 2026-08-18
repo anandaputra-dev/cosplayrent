@@ -196,7 +196,7 @@ $query = mysqli_query($conn, $sql);
                                     <span class="fs-4 fw-bold text-gradient">Rp <?= number_format($row['harga_sewa_per_hari'], 0, ',', '.') ?></span>
                                     <small class="text-secondary">/hari</small>
                                 </div>
-                                <a href="auth.php" class="btn btn-neon py-2 px-4">Sewa</a>
+                                <a href="booking.php?id=<?= $row['id'] ?>" class="btn btn-neon py-2 px-4">Sewa</a>
                             </div>
                         </div>
                     </div>
@@ -211,7 +211,6 @@ $query = mysqli_query($conn, $sql);
     </div>
 </section>
 
-<!-- SCRIPT SWITCHING TEMA -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {

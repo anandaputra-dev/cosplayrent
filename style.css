@@ -1,25 +1,26 @@
 /* ==========================================
    1. VARIABEL TEMA: DARK MODE (DEFAULT)
    ========================================== */
-:root, [data-bs-theme="dark"] {
+:root,
+[data-bs-theme="dark"] {
     --bg-main: #070510;
     --grid-color: rgba(255, 255, 255, 0.03);
     --nav-bg: rgba(7, 5, 16, 0.85);
-    
+
     --card-bg: rgba(19, 13, 42, 0.75);
     --card-border: rgba(176, 0, 255, 0.25);
-    
+
     --text-primary: #ffffff;
     --text-secondary: #a0a0b8;
     --text-muted: #6c757d;
-    
+
     --neon-purple: #b000ff;
     --neon-cyan: #00d4ff;
-    
+
     --badge-bg: rgba(176, 0, 255, 0.2);
     --badge-border: #b000ff;
     --badge-text: #e088ff;
-    
+
     --input-bg: rgba(11, 7, 25, 0.8);
     --input-border: rgba(176, 0, 255, 0.3);
 }
@@ -28,36 +29,35 @@
    2. VARIABEL TEMA: LIGHT MODE (FIGMA MATCH)
    ========================================== */
 [data-bs-theme="light"] {
-    --bg-main: #f5f3ff; /* Soft lavender background khas Figma */
+    --bg-main: #f5f3ff;
+    /* Soft lavender background khas Figma */
     --grid-color: rgba(176, 0, 255, 0.06);
     --nav-bg: rgba(245, 243, 255, 0.85);
-    
+
     --card-bg: rgba(255, 255, 255, 0.9);
     --card-border: rgba(176, 0, 255, 0.2);
-    
-    --text-primary: #1e1035; /* Teks ungu sangat gelap agar tidak silau */
+
+    --text-primary: #1e1035;
+    /* Teks ungu sangat gelap agar tidak silau */
     --text-secondary: #5a5278;
     --text-muted: #8c85a6;
-    
+
     --badge-bg: rgba(176, 0, 255, 0.1);
     --badge-border: rgba(176, 0, 255, 0.4);
     --badge-text: #8e00ce;
-    
+
     --input-bg: #ffffff;
     --input-border: rgba(176, 0, 255, 0.2);
 }
 
-/* ==========================================
-   3. GAYA UTAMA & LAYOUT
-   ========================================== */
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', sans-serif;
     overflow-x: hidden;
-    
+
     /* Background Pattern Grid Transparan */
-    background-image: 
+    background-image:
         linear-gradient(var(--grid-color) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -78,7 +78,8 @@ body {
     transition: all 0.3s ease;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover,
+.nav-link.active {
     color: var(--text-primary) !important;
     background: rgba(176, 0, 255, 0.12);
     border-radius: 8px;
@@ -109,7 +110,10 @@ body {
 }
 
 .text-gradient {
+    color: var(--neon-cyan);
+    /* fallback jika gradient text tidak didukung */
     background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -150,14 +154,16 @@ body {
 }
 
 /* FORM CONTROL & SELECT */
-.form-control, .form-select {
+.form-control,
+.form-select {
     background-color: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
     color: var(--text-primary) !important;
     border-radius: 12px;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     border-color: var(--neon-purple) !important;
     box-shadow: 0 0 12px rgba(176, 0, 255, 0.3);
 }
@@ -182,7 +188,8 @@ body {
     transition: all 0.3s ease;
 }
 
-.filter-pill.active, .filter-pill:hover {
+.filter-pill.active,
+.filter-pill:hover {
     background: var(--neon-purple);
     color: #ffffff !important;
     border-color: var(--neon-purple);
