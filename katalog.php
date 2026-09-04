@@ -69,6 +69,10 @@ $query = mysqli_query($conn, $sql);
                 <option value="Bandung" <?= $kota_filter == 'Bandung' ? 'selected' : '' ?>>Bandung</option>
                 <option value="Yogyakarta" <?= $kota_filter == 'Yogyakarta' ? 'selected' : '' ?>>Yogyakarta</option>
                 <option value="Surabaya" <?= $kota_filter == 'Surabaya' ? 'selected' : '' ?>>Surabaya</option>
+                <option value="Malang" <?= $kota_filter == 'Malang' ? 'selected' : '' ?>>Malang</option>
+                <option value="kediri" <?= $kota_filter == 'kediri' ? 'selected' : '' ?>>Kediri</option>
+                <option value="Batu" <?= $kota_filter == 'Batu' ? 'selected' : '' ?>>Batu</option>
+                <option value="Solo" <?= $kota_filter == 'Solo' ? 'selected' : '' ?>>Solo</option>
             </select>
         </div>
         <div class="col-md-3">
