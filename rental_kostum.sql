@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 11, 2026 at 08:36 AM
+-- Generation Time: Sep 09, 2026 at 02:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,6 +52,30 @@ CREATE TABLE `foto_kostum` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `jadwal_event`
+--
+
+CREATE TABLE `jadwal_event` (
+  `id` int(11) NOT NULL,
+  `nama_event` varchar(150) NOT NULL,
+  `lokasi` varchar(150) NOT NULL,
+  `tanggal_mulai` date NOT NULL,
+  `tanggal_selesai` date DEFAULT NULL,
+  `status` enum('mendatang','berlangsung','selesai') NOT NULL DEFAULT 'mendatang',
+  `dibuat_pada` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `jadwal_event`
+--
+
+INSERT INTO `jadwal_event` (`id`, `nama_event`, `lokasi`, `tanggal_mulai`, `tanggal_selesai`, `status`, `dibuat_pada`) VALUES
+(1, 'Comic Frontier (Comifuro) 19', 'ICE BSD, Tangerang', '2026-08-25', '2026-08-26', 'mendatang', '2026-08-18 07:20:57'),
+(2, 'Indonesia Comic Con 2026', 'JCC Senayan, Jakarta', '2026-09-12', '2026-09-13', 'mendatang', '2026-08-18 07:20:57');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `kategori`
 --
 
@@ -60,6 +84,15 @@ CREATE TABLE `kategori` (
   `nama_kategori` varchar(100) NOT NULL,
   `deskripsi` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `kategori`
+--
+
+INSERT INTO `kategori` (`id`, `nama_kategori`, `deskripsi`) VALUES
+(1, 'Anime', NULL),
+(2, 'Fantasy', NULL),
+(3, 'Game', NULL);
 
 -- --------------------------------------------------------
 
@@ -91,6 +124,15 @@ CREATE TABLE `kostum` (
   `harga_sewa_per_hari` decimal(10,2) NOT NULL,
   `status` enum('tersedia','disewa','perawatan') DEFAULT 'tersedia'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `kostum`
+--
+
+INSERT INTO `kostum` (`id`, `kategori_id`, `nama_kostum`, `nama_karakter`, `nama_serial`, `ukuran`, `deskripsi`, `harga_sewa_per_hari`, `status`) VALUES
+(1, 1, 'Kostum Ninja Konoha', 'Naruto Uzumaki', NULL, 'M', 'Kostum lengkap dengan headband dan aksesoris ninja.', 150000.00, 'tersedia'),
+(2, 2, 'Armor Ksatria Cahaya', 'Elden Knight', NULL, 'L', 'Armor fantasy full-set dengan pedang replika.', 250000.00, 'tersedia'),
+(3, 3, 'Kostum Prajurit Valor', 'Valorant Agent', NULL, 'S', 'Kostum tactical lengkap dengan aksesoris senjata replika.', 200000.00, 'tersedia');
 
 -- --------------------------------------------------------
 
@@ -196,6 +238,12 @@ ALTER TABLE `foto_kostum`
   ADD KEY `kostum_id` (`kostum_id`);
 
 --
+-- Indexes for table `jadwal_event`
+--
+ALTER TABLE `jadwal_event`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `kategori`
 --
 ALTER TABLE `kategori`
@@ -268,10 +316,16 @@ ALTER TABLE `foto_kostum`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `jadwal_event`
+--
+ALTER TABLE `jadwal_event`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `kategori`
 --
 ALTER TABLE `kategori`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `kelengkapan_kostum`
@@ -283,7 +337,7 @@ ALTER TABLE `kelengkapan_kostum`
 -- AUTO_INCREMENT for table `kostum`
 --
 ALTER TABLE `kostum`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pembayaran`
