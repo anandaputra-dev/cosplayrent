@@ -1,38 +1,38 @@
 <?php
 
-session_start();
-
 require_once "koneksi.php";
-
 
 /*
 |--------------------------------------------------------------------------
-| CEK JIKA SUDAH LOGIN
+| Jika user sudah login
 |--------------------------------------------------------------------------
 */
 
 if (isset($_SESSION['user_id'])) {
 
-    // Jika admin
     if (isset($_SESSION['peran']) && $_SESSION['peran'] === 'admin') {
-
         header("Location: admin/dashboard.php");
         exit;
-
     }
 
-    // Jika pelanggan
     header("Location: dashboard.php");
     exit;
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Variabel
+|--------------------------------------------------------------------------
+*/
+
 $error = "";
+$email = "";
 
 
 /*
 |--------------------------------------------------------------------------
-| PROSES LOGIN
+| Proses Login
 |--------------------------------------------------------------------------
 */
 
@@ -44,35 +44,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     /*
     |--------------------------------------------------------------------------
-    | VALIDASI INPUT
+    | Validasi
     |--------------------------------------------------------------------------
     */
 
     if ($email === "" || $password === "") {
 
-        $error = "Email dan kata sandi wajib diisi.";
+        $error = "Email dan password wajib diisi.";
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $error = "Format email tidak valid.";
 
     } else {
 
-
         /*
         |--------------------------------------------------------------------------
-        | AMBIL DATA PENGGUNA DARI DATABASE
+        | Cari user berdasarkan email
         |--------------------------------------------------------------------------
         */
 
-        $stmt = $conn->prepare(
-            "SELECT
+        $sql = "
+            SELECT
                 id,
                 nama_lengkap,
                 email,
                 kata_sandi,
                 peran
-             FROM pengguna
-             WHERE email = ?
-             LIMIT 1"
-        );
+            FROM pengguna
+            WHERE email = ?
+            LIMIT 1
+        ";
 
+        $stmt = $conn->prepare($sql);
 
         if (!$stmt) {
 
@@ -86,10 +90,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $result = $stmt->get_result();
 
-
             /*
             |--------------------------------------------------------------------------
-            | CEK USER
+            | User ditemukan
             |--------------------------------------------------------------------------
             */
 
@@ -100,34 +103,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 /*
                 |--------------------------------------------------------------------------
-                | CEK PASSWORD
+                | Verifikasi password
                 |--------------------------------------------------------------------------
                 */
 
                 if (password_verify($password, $user["kata_sandi"])) {
 
-
                     /*
                     |--------------------------------------------------------------------------
-                    | BUAT SESSION BARU
+                    | Regenerasi session
                     |--------------------------------------------------------------------------
                     */
 
                     session_regenerate_id(true);
 
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Simpan session
+                    |--------------------------------------------------------------------------
+                    */
+
                     $_SESSION["user_id"] = $user["id"];
-
                     $_SESSION["nama"] = $user["nama_lengkap"];
-
                     $_SESSION["email"] = $user["email"];
-
                     $_SESSION["peran"] = $user["peran"];
 
 
                     /*
                     |--------------------------------------------------------------------------
-                    | REDIRECT BERDASARKAN ROLE
+                    | Redirect berdasarkan role
                     |--------------------------------------------------------------------------
                     */
 
@@ -140,54 +145,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         header("Location: dashboard.php");
                         exit;
-
                     }
 
                 } else {
 
-                    $error = "Email atau kata sandi salah.";
-
+                    $error = "Email atau password salah.";
                 }
 
             } else {
 
-                $error = "Email atau kata sandi salah.";
-
+                $error = "Email atau password salah.";
             }
 
-
             $stmt->close();
-
         }
-
     }
-
 }
 
 ?>
 
-
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-bs-theme="dark">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <title>Login - COSPLAYRENT</title>
+    <title>Login - CosplayRent</title>
 
 
-    <!-- CSS LOGIN -->
+    <!-- Google Font -->
 
-    <link
-        rel="stylesheet"
-        href="assets/css/auth.css"
-    >
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+
+    <!-- Bootstrap Icons -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <!-- CSS Utama -->
+
+    <link rel="stylesheet"
+          href="style.css">
 
 </head>
 
@@ -195,34 +207,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
 
 
-<div class="auth-container">
-
+<div class="auth-page">
 
     <div class="auth-card">
 
 
         <!-- LOGO -->
 
-        <div class="logo">
-            COSPLAYRENT
+        <div class="auth-logo">
+            Cosplay<span>Rent</span>
         </div>
+
+
+        <!-- TITLE -->
+
+        <h1 class="auth-title">
+            Selamat Datang
+        </h1>
 
 
         <!-- SUBTITLE -->
 
-        <div class="subtitle">
-            Masuk untuk mulai menyewa kostum favoritmu
-        </div>
+        <p class="auth-subtitle">
+            Masuk ke akun CosplayRent kamu
+        </p>
 
 
         <!-- ERROR -->
 
-        <?php if ($error): ?>
+        <?php if ($error !== ""): ?>
 
-            <div class="alert alert-danger">
-
+            <div class="auth-alert">
+                <i class="bi bi-exclamation-circle me-2"></i>
                 <?= htmlspecialchars($error) ?>
-
             </div>
 
         <?php endif; ?>
@@ -230,25 +247,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <!-- FORM LOGIN -->
 
-        <form method="POST">
+        <form method="POST"
+              action=""
+              class="auth-form"
+              autocomplete="on">
 
 
             <!-- EMAIL -->
 
-            <div class="form-group">
+            <div class="auth-group">
 
                 <label for="email">
                     Email
                 </label>
 
-
                 <input
                     type="email"
                     id="email"
                     name="email"
-                    class="form-control"
-                    placeholder="nama@email.com"
-                    value="<?= htmlspecialchars($_POST["email"] ?? "") ?>"
+                    value="<?= htmlspecialchars($email) ?>"
+                    placeholder="Masukkan email kamu"
+                    autocomplete="email"
                     required
                 >
 
@@ -257,34 +276,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- PASSWORD -->
 
-            <div class="form-group">
+            <div class="auth-group">
 
                 <label for="password">
-                    Kata Sandi
+                    Password
                 </label>
 
 
-                <div class="password-wrapper">
-
+                <div class="auth-password">
 
                     <input
                         type="password"
                         id="password"
                         name="password"
-                        class="form-control"
-                        placeholder="••••••••"
+                        placeholder="Masukkan password"
+                        autocomplete="current-password"
                         required
                     >
 
 
                     <button
                         type="button"
-                        class="toggle-password"
-                        onclick="togglePassword('password', this)"
-                    >
-                        👁
-                    </button>
+                        id="togglePassword"
+                        aria-label="Tampilkan password">
 
+                        <i class="bi bi-eye"></i>
+
+                    </button>
 
                 </div>
 
@@ -295,36 +313,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <button
                 type="submit"
-                class="btn-submit"
-            >
-                Masuk Halaman
+                class="auth-button">
+
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                Login
+
             </button>
 
 
         </form>
 
 
-        <!-- KEMBALI -->
-
-        <a
-            href="index.php"
-            class="back-link"
-        >
-            ← Kembali ke Halaman Utama
-        </a>
-
-
         <!-- REGISTER -->
 
-        <div class="auth-link">
+        <div class="auth-footer">
 
             Belum punya akun?
 
             <a href="register.php">
-                Daftar
+                Daftar sekarang
             </a>
 
         </div>
+
+
+        <!-- BACK -->
+
+        <a href="index.php"
+           class="auth-back">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Kembali ke Beranda
+
+        </a>
 
 
     </div>
@@ -332,27 +355,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 
-<!-- JAVASCRIPT -->
-
 <script>
 
-function togglePassword(id, button) {
+/*
+|--------------------------------------------------------------------------
+| Toggle Password
+|--------------------------------------------------------------------------
+*/
 
-    const input = document.getElementById(id);
+const togglePassword =
+    document.getElementById("togglePassword");
 
-    if (input.type === "password") {
+const password =
+    document.getElementById("password");
 
-        input.type = "text";
 
-        button.textContent = "🙈";
+if (togglePassword && password) {
 
-    } else {
+    togglePassword.addEventListener("click", function () {
 
-        input.type = "password";
+        const isPassword =
+            password.type === "password";
 
-        button.textContent = "👁";
 
-    }
+        password.type =
+            isPassword ? "text" : "password";
+
+
+        const icon =
+            this.querySelector("i");
+
+
+        if (isPassword) {
+
+            icon.classList.remove("bi-eye");
+
+            icon.classList.add("bi-eye-slash");
+
+            this.setAttribute(
+                "aria-label",
+                "Sembunyikan password"
+            );
+
+        } else {
+
+            icon.classList.remove("bi-eye-slash");
+
+            icon.classList.add("bi-eye");
+
+            this.setAttribute(
+                "aria-label",
+                "Tampilkan password"
+            );
+        }
+
+    });
 
 }
 
@@ -360,5 +417,4 @@ function togglePassword(id, button) {
 
 
 </body>
-
 </html>

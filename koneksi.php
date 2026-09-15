@@ -1,5 +1,11 @@
 <?php
 
+// Mulai session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Koneksi database
 $conn = mysqli_connect(
     "localhost",
     "root",
@@ -7,6 +13,7 @@ $conn = mysqli_connect(
     "rental_kostum"
 );
 
+// Cek koneksi
 if (!$conn) {
     die(
         "Koneksi database gagal: " .
