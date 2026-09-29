@@ -15,7 +15,10 @@ $kota_filter = isset($_GET['kota'])
     : '';
 
 
-/* KATEGORI */
+
+/* =========================================================
+   KATEGORI
+========================================================= */
 
 $sqlKategori = "
     SELECT id, nama_kategori
@@ -30,7 +33,10 @@ if (!$queryKategori) {
 }
 
 
-/* KOSTUM */
+
+/* =========================================================
+   KOSTUM
+========================================================= */
 
 $sql = "
     SELECT
@@ -63,7 +69,10 @@ $sql = "
 ";
 
 
-/* FILTER KATEGORI */
+
+/* =========================================================
+   FILTER KATEGORI
+========================================================= */
 
 if ($kategori_filter !== '') {
 
@@ -78,7 +87,10 @@ if ($kategori_filter !== '') {
 }
 
 
-/* FILTER KOTA */
+
+/* =========================================================
+   FILTER KOTA
+========================================================= */
 
 if ($kota_filter !== '') {
 
@@ -93,19 +105,28 @@ if ($kota_filter !== '') {
 }
 
 
-/* URUTKAN */
+
+/* =========================================================
+   URUTKAN
+========================================================= */
 
 $sql .= "
     ORDER BY k.id DESC
 ";
 
 
-/* EKSEKUSI QUERY */
+
+/* =========================================================
+   EKSEKUSI QUERY
+========================================================= */
 
 $query = mysqli_query($conn, $sql);
 
 
-/* CEK ERROR */
+
+/* =========================================================
+   CEK ERROR
+========================================================= */
 
 if (!$query) {
 
@@ -117,7 +138,10 @@ if (!$query) {
 }
 
 
-/* TOTAL KOSTUM */
+
+/* =========================================================
+   TOTAL KOSTUM
+========================================================= */
 
 $sqlTotal = "
     SELECT COUNT(*) AS total
@@ -137,7 +161,10 @@ if ($queryTotal) {
 }
 
 
-/* TOTAL TERSEDIA */
+
+/* =========================================================
+   TOTAL TERSEDIA
+========================================================= */
 
 $sqlTersedia = "
     SELECT COUNT(*) AS total
@@ -158,7 +185,10 @@ if ($queryTersedia) {
 }
 
 
-/* SESSION */
+
+/* =========================================================
+   SESSION
+========================================================= */
 
 $isLogin = isset($_SESSION['user_id']);
 
@@ -169,6 +199,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id" data-bs-theme="dark">
 
 <head>
@@ -185,33 +216,54 @@ $peranUser = $_SESSION['peran'] ?? '';
     </title>
 
 
-    <!-- Bootstrap -->
+
+    <!-- =====================================================
+         BOOTSTRAP
+    ====================================================== -->
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
 
-    <!-- Google Fonts -->
+
+    <!-- =====================================================
+         GOOGLE FONTS
+    ====================================================== -->
+
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
         rel="stylesheet"
     >
 
 
-    <!-- Bootstrap Icons -->
+
+    <!-- =====================================================
+         BOOTSTRAP ICONS
+    ====================================================== -->
+
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     >
 
 
-    <!-- CSS CUSTOM -->
+
+    <!-- =====================================================
+         CSS CUSTOM
+    ====================================================== -->
+
     <link
         rel="stylesheet"
         href="style.css"
     >
 
+
+
+    <!-- =====================================================
+         CSS KHUSUS INDEX
+    ====================================================== -->
 
     <style>
 
@@ -248,6 +300,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             transition: all 0.25s ease;
 
             white-space: nowrap;
+
         }
 
 
@@ -260,6 +313,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             color: #7e22ce;
 
             transform: translateY(-2px);
+
         }
 
 
@@ -270,6 +324,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             border-color: rgba(255, 255, 255, 0.14);
 
             color: #e9d5ff;
+
         }
 
 
@@ -280,7 +335,9 @@ $peranUser = $_SESSION['peran'] ?? '';
             border-color: #a855f7;
 
             color: #ffffff;
+
         }
+
 
 
         /*
@@ -296,6 +353,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             transition:
                 transform .25s ease,
                 box-shadow .25s ease;
+
         }
 
 
@@ -305,6 +363,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
             box-shadow:
                 0 20px 45px rgba(0, 0, 0, .25);
+
         }
 
 
@@ -317,6 +376,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             object-fit: cover;
 
             display: block;
+
         }
 
 
@@ -327,6 +387,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             overflow: hidden;
 
             border-radius: 16px;
+
         }
 
 
@@ -334,6 +395,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
             transition:
                 transform .4s ease;
+
         }
 
 
@@ -341,7 +403,9 @@ $peranUser = $_SESSION['peran'] ?? '';
         .costume-image-wrapper img {
 
             transform: scale(1.04);
+
         }
+
 
 
         /*
@@ -365,6 +429,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             font-size: 12px;
 
             font-weight: 700;
+
         }
 
 
@@ -373,6 +438,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             background: rgba(25, 135, 84, .9);
 
             color: white;
+
         }
 
 
@@ -381,6 +447,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             background: rgba(220, 53, 69, .9);
 
             color: white;
+
         }
 
 
@@ -389,7 +456,9 @@ $peranUser = $_SESSION['peran'] ?? '';
             background: rgba(255, 193, 7, .9);
 
             color: #111;
+
         }
+
 
 
         /*
@@ -413,6 +482,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             border: 1px solid rgba(168, 85, 247, .25);
 
             transition: .2s ease;
+
         }
 
 
@@ -428,7 +498,9 @@ $peranUser = $_SESSION['peran'] ?? '';
             color: white;
 
             border-color: transparent;
+
         }
+
 
 
         /*
@@ -442,14 +514,291 @@ $peranUser = $_SESSION['peran'] ?? '';
             padding: 60px 20px;
 
             text-align: center;
+
         }
 
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ANIMASI JAVASCRIPT
+        |--------------------------------------------------------------------------
+        */
+
+        .costume-card {
+
+            opacity: 0;
+
+            transform: translateY(25px);
+
+            transition:
+                opacity .6s ease,
+                transform .6s ease,
+                box-shadow .25s ease;
+
+        }
+
+
+        .costume-card.js-visible {
+
+            opacity: 1;
+
+            transform: translateY(0);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAVBAR SAAT SCROLL
+        |--------------------------------------------------------------------------
+        */
+
+        .navbar-custom {
+
+            transition:
+                box-shadow .3s ease,
+                background-color .3s ease,
+                padding .3s ease;
+
+        }
+
+
+        .navbar-custom.navbar-scrolled {
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, .25);
+
+            backdrop-filter: blur(14px);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER CLICK
+        |--------------------------------------------------------------------------
+        */
+
+        .filter-clicked {
+
+            transform: scale(.96);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE PREVIEW
+        |--------------------------------------------------------------------------
+        */
+
+        .image-preview-modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(0, 0, 0, .85);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                opacity .25s ease,
+                visibility .25s ease;
+
+        }
+
+
+        .image-preview-modal.show {
+
+            opacity: 1;
+
+            visibility: visible;
+
+        }
+
+
+        .image-preview-overlay {
+
+            position: relative;
+
+            width: 100%;
+
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+
+        .image-preview-img {
+
+            max-width: 90%;
+
+            max-height: 85vh;
+
+            object-fit: contain;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, .5);
+
+            transform: scale(.9);
+
+            transition:
+                transform .25s ease;
+
+        }
+
+
+        .image-preview-modal.show
+        .image-preview-img {
+
+            transform: scale(1);
+
+        }
+
+
+        .image-preview-close {
+
+            position: absolute;
+
+            top: 20px;
+
+            right: 25px;
+
+            z-index: 2;
+
+            width: 45px;
+
+            height: 45px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,.12);
+
+            color: white;
+
+            font-size: 30px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition: .2s ease;
+
+        }
+
+
+        .image-preview-close:hover {
+
+            background: rgba(168,85,247,.5);
+
+            transform: rotate(90deg);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BACK TO TOP
+        |--------------------------------------------------------------------------
+        */
+
+        #backToTop {
+
+            position: fixed;
+
+            right: 25px;
+
+            bottom: 25px;
+
+            z-index: 1000;
+
+            width: 45px;
+
+            height: 45px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #06b6d4,
+                    #a855f7
+                );
+
+            color: white;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transform: translateY(15px);
+
+            transition: .3s ease;
+
+        }
+
+
+        #backToTop.show {
+
+            opacity: 1;
+
+            visibility: visible;
+
+            transform: translateY(0);
+
+        }
+
+
+        #backToTop:hover {
+
+            transform:
+                translateY(-4px);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE
+        |--------------------------------------------------------------------------
+        */
 
         @media (max-width: 991.98px) {
 
             .btn-login-custom {
 
                 padding: 7px 14px;
+
             }
 
         }
@@ -460,6 +809,25 @@ $peranUser = $_SESSION['peran'] ?? '';
             .costume-image {
 
                 height: 240px;
+
+            }
+
+
+            .image-preview-img {
+
+                max-width: 95%;
+
+                max-height: 75vh;
+
+            }
+
+
+            #backToTop {
+
+                right: 15px;
+
+                bottom: 15px;
+
             }
 
         }
@@ -467,6 +835,7 @@ $peranUser = $_SESSION['peran'] ?? '';
     </style>
 
 </head>
+
 
 
 <body>
@@ -518,6 +887,7 @@ $peranUser = $_SESSION['peran'] ?? '';
         </a>
 
 
+
         <!-- TOGGLE MOBILE -->
 
         <button
@@ -530,6 +900,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             <i class="bi bi-list fs-2"></i>
 
         </button>
+
 
 
         <!-- NAVIGATION -->
@@ -593,6 +964,7 @@ $peranUser = $_SESSION['peran'] ?? '';
         </div>
 
 
+
         <!-- RIGHT NAV -->
 
         <div class="d-flex align-items-center gap-3">
@@ -601,8 +973,10 @@ $peranUser = $_SESSION['peran'] ?? '';
             <!-- THEME -->
 
             <button
+                type="button"
                 class="btn rounded-circle d-flex align-items-center justify-content-center p-0"
                 id="themeToggle"
+                aria-label="Ganti tema"
                 style="
                     width:42px;
                     height:42px;
@@ -615,6 +989,7 @@ $peranUser = $_SESSION['peran'] ?? '';
             </button>
 
 
+
             <!-- LOGIN -->
 
             <?php if ($isLogin): ?>
@@ -623,7 +998,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                 if ($peranUser === 'admin') {
 
-                    $dashboardLink = 'admin/dashboard.php';
+                    $dashboardLink = 'dashboard_admin.php';
 
                 } else {
 
@@ -664,14 +1039,8 @@ $peranUser = $_SESSION['peran'] ?? '';
             <?php endif; ?>
 
 
-            <!-- KATALOG -->
 
-            <a
-                href="#katalog"
-                class="btn btn-neon"
-            >
-                Sewa Sekarang
-            </a>
+            
 
         </div>
 
@@ -743,7 +1112,7 @@ $peranUser = $_SESSION['peran'] ?? '';
                 <div class="d-flex gap-3 mb-5">
 
                     <a
-                        href="#katalog"
+                        href="katalog.php"
                         class="btn btn-neon fs-6"
                     >
 
@@ -764,6 +1133,7 @@ $peranUser = $_SESSION['peran'] ?? '';
                 </div>
 
 
+
                 <!-- STATS -->
 
                 <div
@@ -775,7 +1145,6 @@ $peranUser = $_SESSION['peran'] ?? '';
                         border-opacity-25
                     "
                 >
-
 
                     <div class="col-4">
 
@@ -838,7 +1207,6 @@ $peranUser = $_SESSION['peran'] ?? '';
                         </small>
 
                     </div>
-
 
                 </div>
 
@@ -904,7 +1272,6 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                         </div>
 
-
                     </div>
 
                 </div>
@@ -934,7 +1301,6 @@ $peranUser = $_SESSION['peran'] ?? '';
         <!-- TITLE -->
 
         <div class="text-center mb-5">
-
 
             <span
                 class="
@@ -974,7 +1340,6 @@ $peranUser = $_SESSION['peran'] ?? '';
                 dari database COSPLAYRENT.
 
             </p>
-
 
         </div>
 
@@ -1070,7 +1435,6 @@ $peranUser = $_SESSION['peran'] ?? '';
                 "
             >
 
-
                 <a
                     href="index.php#katalog"
                     class="
@@ -1088,11 +1452,8 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                     <?php while ($kategori = mysqli_fetch_assoc($queryKategori)): ?>
 
-
                         <a
-                            href="
-                                ?kategori=<?= urlencode($kategori['nama_kategori']) ?>#katalog
-                            "
+                            href="?kategori=<?= urlencode($kategori['nama_kategori']) ?>#katalog"
                             class="
                                 filter-pill
                                 <?= $kategori_filter === $kategori['nama_kategori']
@@ -1107,11 +1468,9 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                         </a>
 
-
                     <?php endwhile; ?>
 
                 <?php endif; ?>
-
 
             </div>
 
@@ -1134,22 +1493,14 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                     <?php
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | FOTO
-                    |--------------------------------------------------------------------------
-                    */
+                    /* FOTO */
 
                     $gambar = !empty($row['foto_url'])
                         ? $row['foto_url']
                         : 'images/default.jpg';
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | STATUS
-                    |--------------------------------------------------------------------------
-                    */
+                    /* STATUS */
 
                     $status = strtolower(
                         $row['status'] ?? ''
@@ -1224,12 +1575,12 @@ $peranUser = $_SESSION['peran'] ?? '';
                                     >
 
                                         •
+
                                         <?= htmlspecialchars(
                                             ucfirst($row['status'])
                                         ) ?>
 
                                     </span>
-
 
                                 </div>
 
@@ -1357,7 +1708,6 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                                 </p>
 
-
                             </div>
 
 
@@ -1375,7 +1725,6 @@ $peranUser = $_SESSION['peran'] ?? '';
                                     border-opacity-25
                                 "
                             >
-
 
                                 <div>
 
@@ -1413,9 +1762,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
 
                                     <a
-                                        href="
-                                            booking.php?id=<?= (int) $row['id'] ?>
-                                        "
+                                        href="booking.php?id=<?= (int) $row['id'] ?>"
                                         class="
                                             btn
                                             btn-neon
@@ -1424,7 +1771,7 @@ $peranUser = $_SESSION['peran'] ?? '';
                                         "
                                     >
 
-                                        Sewa
+                                        Lihat Detail
 
                                     </a>
 
@@ -1433,6 +1780,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
 
                                     <button
+                                        type="button"
                                         class="btn btn-secondary py-2 px-3"
                                         disabled
                                     >
@@ -1444,9 +1792,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                                 <?php endif; ?>
 
-
                             </div>
-
 
                         </div>
 
@@ -1502,7 +1848,6 @@ $peranUser = $_SESSION['peran'] ?? '';
 
             <?php endif; ?>
 
-
         </div>
 
     </div>
@@ -1532,7 +1877,9 @@ $peranUser = $_SESSION['peran'] ?? '';
                     small
                 "
             >
+
                 — CARA SEWA —
+
             </span>
 
 
@@ -1571,8 +1918,10 @@ $peranUser = $_SESSION['peran'] ?? '';
                     </h4>
 
                     <p class="text-secondary">
+
                         Pilih kostum yang ingin kamu gunakan
                         dari katalog yang tersedia.
+
                     </p>
 
                 </div>
@@ -1599,8 +1948,10 @@ $peranUser = $_SESSION['peran'] ?? '';
                     </h4>
 
                     <p class="text-secondary">
+
                         Tentukan tanggal penggunaan dan
                         lakukan proses penyewaan.
+
                     </p>
 
                 </div>
@@ -1627,14 +1978,15 @@ $peranUser = $_SESSION['peran'] ?? '';
                     </h4>
 
                     <p class="text-secondary">
+
                         Kostum siap digunakan untuk event,
                         photoshoot, atau kegiatan cosplay.
+
                     </p>
 
                 </div>
 
             </div>
-
 
         </div>
 
@@ -1665,7 +2017,9 @@ $peranUser = $_SESSION['peran'] ?? '';
                     small
                 "
             >
+
                 COSPLAYRENT
+
             </span>
 
 
@@ -1751,7 +2105,9 @@ $peranUser = $_SESSION['peran'] ?? '';
                 margin-right:16px;
             "
         >
+
             @localhost/cosplayrent
+
         </a>
 
 
@@ -1762,7 +2118,9 @@ $peranUser = $_SESSION['peran'] ?? '';
                 text-decoration:none;
             "
         >
+
             Kebijakan Privasi
+
         </a>
 
     </p>
@@ -1771,7 +2129,25 @@ $peranUser = $_SESSION['peran'] ?? '';
 
 
 
-<!-- Bootstrap JS -->
+<!-- =========================================================
+     BACK TO TOP
+========================================================= -->
+
+<button
+    type="button"
+    id="backToTop"
+    aria-label="Kembali ke atas"
+>
+
+    <i class="bi bi-arrow-up"></i>
+
+</button>
+
+
+
+<!-- =========================================================
+     BOOTSTRAP JS
+========================================================= -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
@@ -1779,100 +2155,11 @@ $peranUser = $_SESSION['peran'] ?? '';
 
 
 
-<!-- THEME SCRIPT -->
+<!-- =========================================================
+     CUSTOM JAVASCRIPT
+========================================================= -->
 
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-
-    const themeToggleBtn =
-        document.getElementById('themeToggle');
-
-
-    const htmlElement =
-        document.documentElement;
-
-
-    const savedTheme =
-        localStorage.getItem('cosplayrent_theme')
-        || 'dark';
-
-
-    setTheme(savedTheme);
-
-
-
-    themeToggleBtn.addEventListener(
-        'click',
-        function () {
-
-            const currentTheme =
-                htmlElement.getAttribute(
-                    'data-bs-theme'
-                );
-
-
-            const newTheme =
-                currentTheme === 'dark'
-                    ? 'light'
-                    : 'dark';
-
-
-            setTheme(newTheme);
-
-        }
-    );
-
-
-
-    function setTheme(theme) {
-
-        htmlElement.setAttribute(
-            'data-bs-theme',
-            theme
-        );
-
-
-        localStorage.setItem(
-            'cosplayrent_theme',
-            theme
-        );
-
-
-        if (theme === 'light') {
-
-            themeToggleBtn.innerHTML =
-                '<i class="bi bi-moon-stars-fill" style="color:#ff9800;"></i>';
-
-
-            themeToggleBtn.style.backgroundColor =
-                '#ffffff';
-
-
-            themeToggleBtn.style.borderColor =
-                'rgba(176,0,255,.2)';
-
-        } else {
-
-            themeToggleBtn.innerHTML =
-                '<i class="bi bi-sun-fill" style="color:#ffc107;"></i>';
-
-
-            themeToggleBtn.style.backgroundColor =
-                'rgba(255,255,255,.05)';
-
-
-            themeToggleBtn.style.borderColor =
-                'rgba(255,255,255,.1)';
-
-        }
-
-    }
-
-});
-
-</script>
+<script src="assets/js/script.js"></script>
 
 
 </body>

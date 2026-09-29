@@ -4,7 +4,7 @@ require_once 'booking_functions.php';
 
 // Wajib login untuk booking
 if (!isset($_SESSION['user_id'])) {
-    header("Location: auth.php");
+    header("Location: katalog.php");
     exit;
 }
 
