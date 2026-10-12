@@ -1,18 +1,29 @@
 <?php
+session_start();
+
 require_once 'koneksi.php';
 
+// Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: auth.php");
+    header("Location: login.php");
     exit;
 }
 
 $user_id = $_SESSION['user_id'];
-$query = "SELECT p.*, count(dp.id) as total_item 
+
+$query = "SELECT p.*, COUNT(dp.id) AS total_item 
           FROM penyewaan p 
-          LEFT JOIN detail_penyewaan dp ON p.id = dp.penyewaan_id 
+          LEFT JOIN detail_penyewaan dp 
+              ON p.id = dp.penyewaan_id 
           WHERE p.pengguna_id = '$user_id' 
-          GROUP BY p.id ORDER BY p.dibuat_pada DESC";
+          GROUP BY p.id 
+          ORDER BY p.dibuat_pada DESC";
+
 $result = mysqli_query($conn, $query);
+
+if (!$result) {
+    die("Query Error: " . mysqli_error($conn));
+}
 ?>
 
 <!DOCTYPE html>

@@ -962,7 +962,7 @@ $query = mysqli_query($conn, $sql);
 
 
             <a
-                href="auth.php"
+                href="dashboard.php"
                 class="btn btn-purple"
             >
                 Sewa Sekarang
