@@ -952,7 +952,7 @@ $peranUser = $_SESSION['peran'] ?? '';
 
                     <a
                         class="nav-link px-3"
-                        href="#event"
+                        href="event.php"
                     >
                         Event
                     </a>
