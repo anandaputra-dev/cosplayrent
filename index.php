@@ -1,42 +1,7 @@
 <?php
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-require_once 'koneksi.php';
-
-$kategori_filter = isset($_GET['kategori'])
-    ? trim($_GET['kategori'])
-    : '';
-
-$kota_filter = isset($_GET['kota'])
-    ? trim($_GET['kota'])
-    : '';
-
-
-
-/* =========================================================
-   KATEGORI
-========================================================= */
-
-$sqlKategori = "
-    SELECT id, nama_kategori
-    FROM kategori
-    ORDER BY nama_kategori ASC
-";
-
-$queryKategori = mysqli_query($conn, $sqlKategori);
-
-if (!$queryKategori) {
-    die("Query kategori gagal: " . mysqli_error($conn));
-}
-
-
-
-/* =========================================================
-   KOSTUM
-========================================================= */
+session_start();
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/auth.php';
 
 $sql = "
     SELECT
@@ -44,2124 +9,264 @@ $sql = "
         k.nama_kostum,
         k.nama_karakter,
         k.nama_serial,
-        k.kategori_id,
-        k.ukuran,
         k.deskripsi,
         k.harga_sewa_per_hari,
         k.status,
-
-        cat.nama_kategori,
-
-        (
-            SELECT fk.foto_url
-            FROM foto_kostum fk
-            WHERE fk.kostum_id = k.id
-            ORDER BY fk.foto_utama DESC, fk.id ASC
-            LIMIT 1
-        ) AS foto_url
-
+        c.nama_kategori AS kategori
     FROM kostum k
-
-    LEFT JOIN kategori cat
-        ON k.kategori_id = cat.id
-
-    WHERE 1 = 1
-";
-
-
-
-/* =========================================================
-   FILTER KATEGORI
-========================================================= */
-
-if ($kategori_filter !== '') {
-
-    $kategori_safe = mysqli_real_escape_string(
-        $conn,
-        $kategori_filter
-    );
-
-    $sql .= "
-        AND cat.nama_kategori = '$kategori_safe'
-    ";
-}
-
-
-
-/* =========================================================
-   FILTER KOTA
-========================================================= */
-
-if ($kota_filter !== '') {
-
-    $kota_safe = mysqli_real_escape_string(
-        $conn,
-        $kota_filter
-    );
-
-    $sql .= "
-        AND k.deskripsi LIKE '%$kota_safe%'
-    ";
-}
-
-
-
-/* =========================================================
-   URUTKAN
-========================================================= */
-
-$sql .= "
+    LEFT JOIN kategori c ON c.id = k.kategori_id
     ORDER BY k.id DESC
+    LIMIT 8
 ";
 
-
-
-/* =========================================================
-   EKSEKUSI QUERY
-========================================================= */
-
-$query = mysqli_query($conn, $sql);
-
-
-
-/* =========================================================
-   CEK ERROR
-========================================================= */
-
-if (!$query) {
-
-    die(
-        "Query kostum gagal: " .
-        mysqli_error($conn)
-    );
-
-}
-
-
-
-/* =========================================================
-   TOTAL KOSTUM
-========================================================= */
-
-$sqlTotal = "
-    SELECT COUNT(*) AS total
-    FROM kostum
-";
-
-$queryTotal = mysqli_query($conn, $sqlTotal);
-
-$totalKostum = 0;
-
-if ($queryTotal) {
-
-    $dataTotal = mysqli_fetch_assoc($queryTotal);
-
-    $totalKostum = (int) $dataTotal['total'];
-
-}
-
-
-
-/* =========================================================
-   TOTAL TERSEDIA
-========================================================= */
-
-$sqlTersedia = "
-    SELECT COUNT(*) AS total
-    FROM kostum
-    WHERE status = 'tersedia'
-";
-
-$queryTersedia = mysqli_query($conn, $sqlTersedia);
-
-$totalTersedia = 0;
-
-if ($queryTersedia) {
-
-    $dataTersedia = mysqli_fetch_assoc($queryTersedia);
-
-    $totalTersedia = (int) $dataTersedia['total'];
-
-}
-
-
-
-/* =========================================================
-   SESSION
-========================================================= */
-
-$isLogin = isset($_SESSION['user_id']);
-
-$namaUser = $_SESSION['nama'] ?? '';
-
-$peranUser = $_SESSION['peran'] ?? '';
-
+$kostum = $pdo->query($sql)->fetchAll();
 ?>
 
-<!DOCTYPE html>
 
-<html lang="id" data-bs-theme="dark">
+
+<!DOCTYPE html>
+<html lang="id">
 
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        CosplayRent - Wujudkan Karakter Impianmu
-    </title>
-
-
-
-    <!-- =====================================================
-         BOOTSTRAP
-    ====================================================== -->
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-
-
-    <!-- =====================================================
-         GOOGLE FONTS
-    ====================================================== -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-
-
-    <!-- =====================================================
-         BOOTSTRAP ICONS
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-    >
-
-
-
-    <!-- =====================================================
-         CSS CUSTOM
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-
-
-    <!-- =====================================================
-         CSS KHUSUS INDEX
-    ====================================================== -->
-
-    <style>
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOGIN BUTTON
-        |--------------------------------------------------------------------------
-        */
-
-        .btn-login-custom {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            min-height: 42px;
-
-            padding: 8px 18px;
-
-            border: 1px solid rgba(168, 85, 247, 0.35);
-
-            border-radius: 12px;
-
-            background: rgba(255, 255, 255, 0.75);
-
-            color: #4c1d95;
-
-            font-weight: 600;
-
-            text-decoration: none;
-
-            transition: all 0.25s ease;
-
-            white-space: nowrap;
-
-        }
-
-
-        .btn-login-custom:hover {
-
-            background: #f3e8ff;
-
-            border-color: #a855f7;
-
-            color: #7e22ce;
-
-            transform: translateY(-2px);
-
-        }
-
-
-        [data-bs-theme="dark"] .btn-login-custom {
-
-            background: rgba(255, 255, 255, 0.06);
-
-            border-color: rgba(255, 255, 255, 0.14);
-
-            color: #e9d5ff;
-
-        }
-
-
-        [data-bs-theme="dark"] .btn-login-custom:hover {
-
-            background: rgba(168, 85, 247, 0.15);
-
-            border-color: #a855f7;
-
-            color: #ffffff;
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | COSTUME CARD
-        |--------------------------------------------------------------------------
-        */
-
-        .costume-card {
-
-            overflow: hidden;
-
-            transition:
-                transform .25s ease,
-                box-shadow .25s ease;
-
-        }
-
-
-        .costume-card:hover {
-
-            transform: translateY(-6px);
-
-            box-shadow:
-                0 20px 45px rgba(0, 0, 0, .25);
-
-        }
-
-
-        .costume-image {
-
-            width: 100%;
-
-            height: 280px;
-
-            object-fit: cover;
-
-            display: block;
-
-        }
-
-
-        .costume-image-wrapper {
-
-            position: relative;
-
-            overflow: hidden;
-
-            border-radius: 16px;
-
-        }
-
-
-        .costume-image-wrapper img {
-
-            transition:
-                transform .4s ease;
-
-        }
-
-
-        .costume-card:hover
-        .costume-image-wrapper img {
-
-            transform: scale(1.04);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS
-        |--------------------------------------------------------------------------
-        */
-
-        .status-badge {
-
-            position: absolute;
-
-            top: 14px;
-
-            right: 14px;
-
-            padding: 7px 12px;
-
-            border-radius: 50px;
-
-            font-size: 12px;
-
-            font-weight: 700;
-
-        }
-
-
-        .status-tersedia {
-
-            background: rgba(25, 135, 84, .9);
-
-            color: white;
-
-        }
-
-
-        .status-disewa {
-
-            background: rgba(220, 53, 69, .9);
-
-            color: white;
-
-        }
-
-
-        .status-maintenance {
-
-            background: rgba(255, 193, 7, .9);
-
-            color: #111;
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTER
-        |--------------------------------------------------------------------------
-        */
-
-        .filter-pill {
-
-            display: inline-block;
-
-            padding: 8px 18px;
-
-            border-radius: 50px;
-
-            text-decoration: none;
-
-            color: inherit;
-
-            border: 1px solid rgba(168, 85, 247, .25);
-
-            transition: .2s ease;
-
-        }
-
-
-        .filter-pill:hover,
-        .filter-pill.active {
-
-            background: linear-gradient(
-                135deg,
-                #06b6d4,
-                #a855f7
-            );
-
-            color: white;
-
-            border-color: transparent;
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | EMPTY STATE
-        |--------------------------------------------------------------------------
-        */
-
-        .empty-state {
-
-            padding: 60px 20px;
-
-            text-align: center;
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ANIMASI JAVASCRIPT
-        |--------------------------------------------------------------------------
-        */
-
-        .costume-card {
-
-            opacity: 0;
-
-            transform: translateY(25px);
-
-            transition:
-                opacity .6s ease,
-                transform .6s ease,
-                box-shadow .25s ease;
-
-        }
-
-
-        .costume-card.js-visible {
-
-            opacity: 1;
-
-            transform: translateY(0);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NAVBAR SAAT SCROLL
-        |--------------------------------------------------------------------------
-        */
-
-        .navbar-custom {
-
-            transition:
-                box-shadow .3s ease,
-                background-color .3s ease,
-                padding .3s ease;
-
-        }
-
-
-        .navbar-custom.navbar-scrolled {
-
-            box-shadow:
-                0 10px 30px rgba(0, 0, 0, .25);
-
-            backdrop-filter: blur(14px);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTER CLICK
-        |--------------------------------------------------------------------------
-        */
-
-        .filter-clicked {
-
-            transform: scale(.96);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | IMAGE PREVIEW
-        |--------------------------------------------------------------------------
-        */
-
-        .image-preview-modal {
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 9999;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 20px;
-
-            background: rgba(0, 0, 0, .85);
-
-            opacity: 0;
-
-            visibility: hidden;
-
-            transition:
-                opacity .25s ease,
-                visibility .25s ease;
-
-        }
-
-
-        .image-preview-modal.show {
-
-            opacity: 1;
-
-            visibility: visible;
-
-        }
-
-
-        .image-preview-overlay {
-
-            position: relative;
-
-            width: 100%;
-
-            height: 100%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-        }
-
-
-        .image-preview-img {
-
-            max-width: 90%;
-
-            max-height: 85vh;
-
-            object-fit: contain;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, .5);
-
-            transform: scale(.9);
-
-            transition:
-                transform .25s ease;
-
-        }
-
-
-        .image-preview-modal.show
-        .image-preview-img {
-
-            transform: scale(1);
-
-        }
-
-
-        .image-preview-close {
-
-            position: absolute;
-
-            top: 20px;
-
-            right: 25px;
-
-            z-index: 2;
-
-            width: 45px;
-
-            height: 45px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,.12);
-
-            color: white;
-
-            font-size: 30px;
-
-            line-height: 1;
-
-            cursor: pointer;
-
-            transition: .2s ease;
-
-        }
-
-
-        .image-preview-close:hover {
-
-            background: rgba(168,85,247,.5);
-
-            transform: rotate(90deg);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BACK TO TOP
-        |--------------------------------------------------------------------------
-        */
-
-        #backToTop {
-
-            position: fixed;
-
-            right: 25px;
-
-            bottom: 25px;
-
-            z-index: 1000;
-
-            width: 45px;
-
-            height: 45px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #06b6d4,
-                    #a855f7
-                );
-
-            color: white;
-
-            opacity: 0;
-
-            visibility: hidden;
-
-            transform: translateY(15px);
-
-            transition: .3s ease;
-
-        }
-
-
-        #backToTop.show {
-
-            opacity: 1;
-
-            visibility: visible;
-
-            transform: translateY(0);
-
-        }
-
-
-        #backToTop:hover {
-
-            transform:
-                translateY(-4px);
-
-        }
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RESPONSIVE
-        |--------------------------------------------------------------------------
-        */
-
-        @media (max-width: 991.98px) {
-
-            .btn-login-custom {
-
-                padding: 7px 14px;
-
-            }
-
-        }
-
-
-        @media (max-width: 767px) {
-
-            .costume-image {
-
-                height: 240px;
-
-            }
-
-
-            .image-preview-img {
-
-                max-width: 95%;
-
-                max-height: 75vh;
-
-            }
-
-
-            #backToTop {
-
-                right: 15px;
-
-                bottom: 15px;
-
-            }
-
-        }
-
-    </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COSPLAYRENT — Sewa kostum cosplay favoritmu dengan mudah.">
+  <title>COSPLAYRENT — Karaktermu, Momenmu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 
-
-
 <body>
-
-
-<!-- =========================================================
-     NAVBAR
-========================================================= -->
-
-<nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
-
-    <div class="container">
-
-
-        <!-- LOGO -->
-
-        <a
-            class="navbar-brand d-flex align-items-center gap-2 fw-bold"
-            href="index.php"
-        >
-
-            <div
-                class="p-2 rounded-3"
-                style="
-                    background:
-                    linear-gradient(
-                        135deg,
-                        var(--neon-cyan),
-                        var(--neon-purple)
-                    );
-                "
-            >
-
-                <i class="bi bi-mask text-white"></i>
-
-            </div>
-
-
-            <span class="fs-4 tracking-wider">
-
-                COSPLAY
-
-                <span style="color:var(--neon-purple)">
-                    RENT
-                </span>
-
-            </span>
-
-        </a>
-
-
-
-        <!-- TOGGLE MOBILE -->
-
-        <button
-            class="navbar-toggler border-0 text-white"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-        >
-
-            <i class="bi bi-list fs-2"></i>
-
-        </button>
-
-
-
-        <!-- NAVIGATION -->
-
-        <div
-            class="collapse navbar-collapse justify-content-center"
-            id="navbarNav"
-        >
-
-            <ul class="navbar-nav">
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link active px-3"
-                        href="#beranda"
-                    >
-                        Beranda
-                    </a>
-
-                </li>
-
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link px-3"
-                        href="#katalog"
-                    >
-                        Katalog
-                    </a>
-
-                </li>
-
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link px-3"
-                        href="#cara-sewa"
-                    >
-                        Cara Sewa
-                    </a>
-
-                </li>
-
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link px-3"
-                        href="event.php"
-                    >
-                        Event
-                    </a>
-
-                </li>
-
-            </ul>
-
-        </div>
-
-
-
-        <!-- RIGHT NAV -->
-
-        <div class="d-flex align-items-center gap-3">
-
-
-            <!-- THEME -->
-
-            <button
-                type="button"
-                class="btn rounded-circle d-flex align-items-center justify-content-center p-0"
-                id="themeToggle"
-                aria-label="Ganti tema"
-                style="
-                    width:42px;
-                    height:42px;
-                    transition:all .3s ease;
-                "
-            >
-
-                <i class="bi bi-sun-fill text-warning"></i>
-
-            </button>
-
-
-
-            <!-- LOGIN -->
-
-            <?php if ($isLogin): ?>
-
-                <?php
-
-                if ($peranUser === 'admin') {
-
-                    $dashboardLink = 'dashboard_admin.php';
-
-                } else {
-
-                    $dashboardLink = 'dashboard.php';
-
-                }
-
-                ?>
-
-
-                <a
-                    href="<?= htmlspecialchars($dashboardLink) ?>"
-                    class="btn btn-login-custom"
-                >
-
-                    <i class="bi bi-person-circle me-1"></i>
-
-                    <?= htmlspecialchars($namaUser) ?>
-
-                </a>
-
-
-            <?php else: ?>
-
-
-                <a
-                    href="login.php"
-                    class="btn btn-login-custom"
-                >
-
-                    <i class="bi bi-box-arrow-in-right me-1"></i>
-
-                    Login
-
-                </a>
-
-
-            <?php endif; ?>
-
-
-
-            
-
-        </div>
-
+  <header class="header">
+    <a class="brand" href="#beranda" aria-label="COSPLAYRENT beranda">
+      <span class="brand-mark">C</span><span>COSPLAY<span class="brand-accent">RENT</span><small>KARAKTERMU,
+          MOMENMU</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Buka menu" aria-expanded="false">☰</button>
+    <nav class="nav" id="nav">
+      <a class="active" href="#beranda">Beranda</a>
+      <a href="#katalog">Katalog Kostum</a>
+      <a href="#cara-sewa">Cara Sewa</a>
+      <a href="#tentang">Tentang Kami</a>
+    </nav>
+    <div class="nav-actions"><?php if (isset($_SESSION['user_id'])): ?>
+        <a class="login-link" href="dashboard.php">Akun Saya</a>
+        <a class="btn btn-small" href="logout.php">Keluar <span>↗</span></a>
+      <?php else: ?>
+        <a class="login-link" href="login.php">Masuk</a>
+        <a class="btn btn-small" href="register.php">Daftar <span>↗</span></a>
+      <?php endif; ?>
     </div>
-
-</nav>
-
-
-
-<!-- =========================================================
-     HERO
-========================================================= -->
-
-<section
-    id="beranda"
-    class="py-5 my-4"
->
-
-    <div class="container">
-
-        <div class="row align-items-center g-5">
-
-
-            <!-- HERO TEXT -->
-
-            <div class="col-lg-6">
-
-
-                <span
-                    class="badge-pill-custom text-uppercase fw-bold mb-3 d-inline-block"
-                >
-
-                    • <?= $totalTersedia ?> Kostum Tersedia
-
-                </span>
-
-
-                <h1
-                    class="title-fantasy display-3 mb-3"
-                >
-
-                    WUJUDKAN
-
-                    <br>
-
-                    <span class="text-gradient">
-                        KARAKTER
-                    </span>
-
-                    <br>
-
-                    IMPIANMU
-
-                </h1>
-
-
-                <p
-                    class="text-secondary fs-5 mb-4"
-                    style="max-width:500px;"
-                >
-
-                    Dari anime legendaris hingga ksatria fantasi —
-                    kami menyediakan kostum cosplay premium berkualitas
-                    tinggi untuk event, pemotretan, atau sekadar tampil keren.
-
-                </p>
-
-
-                <div class="d-flex gap-3 mb-5">
-
-                    <a
-                        href="katalog.php"
-                        class="btn btn-neon fs-6"
-                    >
-
-                        Jelajahi Katalog →
-
-                    </a>
-
-
-                    <a
-                        href="#cara-sewa"
-                        class="btn btn-outline-custom fs-6"
-                    >
-
-                        Cara Sewa
-
-                    </a>
-
-                </div>
-
-
-
-                <!-- STATS -->
-
-                <div
-                    class="
-                        row
-                        pt-4
-                        border-top
-                        border-secondary
-                        border-opacity-25
-                    "
-                >
-
-                    <div class="col-4">
-
-                        <h3
-                            class="
-                                fw-bold
-                                text-gradient
-                                mb-0
-                            "
-                        >
-
-                            <?= $totalKostum ?>+
-
-                        </h3>
-
-                        <small class="text-secondary">
-                            Kostum
-                        </small>
-
-                    </div>
-
-
-                    <div class="col-4">
-
-                        <h3
-                            class="
-                                fw-bold
-                                text-gradient
-                                mb-0
-                            "
-                        >
-
-                            <?= $totalTersedia ?>
-
-                        </h3>
-
-                        <small class="text-secondary">
-                            Tersedia
-                        </small>
-
-                    </div>
-
-
-                    <div class="col-4">
-
-                        <h3
-                            class="
-                                fw-bold
-                                text-gradient
-                                mb-0
-                            "
-                        >
-
-                            5★
-
-                        </h3>
-
-                        <small class="text-secondary">
-                            Rating
-                        </small>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- HERO IMAGE -->
-
-            <div class="col-lg-6">
-
-                <div class="row g-3 position-relative">
-
-
-                    <div class="col-7">
-
-                        <div class="hero-img-box shadow-lg">
-
-                            <img
-                                src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600"
-                                class="img-fluid rounded-4"
-                                style="
-                                    height:420px;
-                                    object-fit:cover;
-                                "
-                                alt="Cosplay"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-5">
-
-
-                        <div class="hero-img-box mb-3 shadow-lg">
-
-                            <img
-                                src="https://images.unsplash.com/photo-1563089145-599997674d42?w=400"
-                                class="img-fluid rounded-4"
-                                style="
-                                    height:200px;
-                                    object-fit:cover;
-                                "
-                                alt="Cosplay"
-                            >
-
-                        </div>
-
-
-                        <div class="hero-img-box shadow-lg">
-
-                            <img
-                                src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400"
-                                class="img-fluid rounded-4"
-                                style="
-                                    height:200px;
-                                    object-fit:cover;
-                                "
-                                alt="Cosplay"
-                            >
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+  </header>
+
+  <main>
+    <section class="hero section-wrap" id="beranda">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> SETIAP KARAKTER PUNYA CERITA</div>
+        <h1>Wujudkan<br><span>Karakter</span><br>Favoritmu<span class="purple-dot">!</span></h1>
+        <p class="hero-description">Dari dunia anime ke dunia nyata. Temukan kostum favoritmu dan buat setiap momen jadi
+          luar biasa.</p>
+        <div class="hero-actions"><a class="btn" href="#katalog">Jelajahi Kostum <span>↗</span></a><a
+            class="btn btn-outline" href="#cara-sewa">Cara Sewa <span>→</span></a></div>
+        <div class="hero-note"><span class="note-icon">✦</span><span>Untuk acara, sesi foto, dan seru-seruan!</span>
         </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-orbit orbit-one"></div>
+        <div class="hero-orbit orbit-two"></div>
+        <div class="hero-image"><img
+            src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1000&q=85"
+            alt="Suasana acara cosplay dan kostum kreatif"></div>
+        <div class="floating-card card-top"><span class="float-icon">✦</span><span><b>Kostum impianmu</b><small>Siap
+              menemani momenmu</small></span></div>
+        <div class="floating-card card-bottom"><span class="heart">♡</span><span><b>Jadi karakter
+              favoritmu</b><small>Tanpa harus membeli kostumnya</small></span></div>
+        <span class="sparkle sparkle-one">✦</span><span class="sparkle sparkle-two">✧</span>
+      </div>
+    </section>
 
+    <section class="benefits section-wrap">
+      <div class="benefit-intro"><span class="eyebrow">KARAKTERMU. MOMENMU.</span>
+        <h2>Lebih mudah<br>jadi siapa saja.</h2>
+      </div>
+      <div class="benefit"><span class="benefit-icon">✧</span>
+        <div><b>Bersih & terawat</b>
+          <p>Nyaman dipakai, siap tampil.</p>
+        </div>
+      </div>
+      <div class="benefit"><span class="benefit-icon">◷</span>
+        <div><b>Waktu sewa fleksibel</b>
+          <p>Sesuaikan dengan rencanamu.</p>
+        </div>
+      </div>
+      <div class="benefit"><span class="benefit-icon">♢</span>
+        <div><b>Lengkap & berkualitas</b>
+          <p>Detail kecil, pengalaman besar.</p>
+        </div>
+      </div>
+      <div class="benefit"><span class="benefit-icon">♡</span>
+        <div><b>Ramah di kantong</b>
+          <p>Jadi karakter tanpa biaya besar.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog section-wrap" id="katalog">
+      <div class="section-heading">
+        <div><span class="eyebrow">TEMUKAN DUNIAMU</span>
+          <h2>Mau jadi siapa hari ini?</h2>
+          <p>Pilih karakter favoritmu dan bersiaplah menciptakan momen seru.</p>
+        </div>
+        <a class="text-link" href="gallery.php">Semua kategori <span>↗</span></a>
+      </div>
+      <div class="category-list" id="categoryList">
+        <button class="category active" data-category="Semua">✦ <span>Semua</span></button>
+        <button class="category" data-category="Anime">☄ <span>Anime</span><small>4 kostum</small></button>
+        <button class="category" data-category="Game">▣ <span>Game</span><small>1 kostum</small></button>
+        <button class="category" data-category="Superhero">⚡ <span>Superhero</span><small>2 kostum</small></button>
+        <button class="category" data-category="Fantasy">♧ <span>Fantasy</span><small>1 kostum</small></button>
+        <button class="category" data-category="Mitologi">☼ <span>Mitologi</span><small>Segera hadir</small></button>
+      </div>
+      <div class="product-heading">
+        <div><span class="eyebrow">PILIHAN UNTUK MOMEN SPESIALMU</span>
+          <h3>Kostum yang bikin kamu bersinar.</h3>
+        </div>
+        <div class="catalog-tabs"><button class="tab active" data-sort="popular">Paling Populer</button><button
+            class="tab" data-sort="newest">Terbaru</button></div>
+      </div>
+      <div class="product-grid" id="productGrid">
+        <?php foreach ($kostum as $item): ?>
+          <article class="product-card" data-category="<?= e($item['kategori'] ?? 'Kostum') ?>"
+            data-price="<?= (int) $item['harga_sewa_per_hari'] ?>" data-popular="<?= (int) $item['id'] ?>">
+            <div class="product-image">
+              <img src="assets/placeholder.svg"
+                alt="<?= e($item['nama_kostum']) ?>" loading="lazy">
+              <span class="product-badge">✦ Koleksi COSPLAYRENT</span>
+              <button class="favorite" type="button" aria-label="Simpan favorit">♡</button>
+            </div>
+            <div class="product-info">
+              <div class="product-meta"><span><?= e(strtoupper($item['kategori'] ?? 'KOSTUM')) ?></span><span
+                  class="availability"><i></i> <?= e(ucfirst($item['status'] ?? 'Perlu konfirmasi')) ?></span></div>
+              <h4><?= e($item['nama_kostum']) ?></h4>
+              <p><?= e($item['deskripsi'] ?: 'Kostum cosplay pilihan') ?></p>
+              <div class="product-bottom">
+                <div class="price">Rp<?= number_format((int) $item['harga_sewa_per_hari'], 0, ',', '.') ?> <small>/
+                    hari</small>
+                </div>
+                <a class="add-button" href="detail.php?id=<?= (int) $item['id'] ?>"
+                  aria-label="Lihat detail <?= e($item['nama_kostum']) ?>">↗</a>
+              </div>
+            </div>
+          </article>
+        <?php endforeach; ?>
+      </div>
+      <p class="catalog-disclaimer">Katalog contoh · Foto merupakan ilustrasi cosplay. Ketersediaan dan detail kostum
+        perlu dikonfirmasi sebelum pemesanan.</p>
+      <div class="empty-state" id="emptyState" hidden>Belum ada kostum pada kategori ini. Coba pilih kategori lainnya ✨
+      </div>
+    </section>
+
+    <section class="steps-section" id="cara-sewa">
+      <div class="section-wrap">
+        <div class="center-heading"><span class="eyebrow">GAMPANG, NGGAK PAKE RIBET</span>
+          <h2>Sewa kostum dalam <span>3 langkah</span></h2>
+          <p>Lebih sedikit persiapan, lebih banyak keseruan.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="step">
+            <div class="step-number">01 <span>↗</span></div>
+            <div class="step-icon">⌕</div>
+            <h3>Temukan karaktermu</h3>
+            <p>Jelajahi katalog dan pilih kostum karakter yang paling kamu suka.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">02 <span>↗</span></div>
+            <div class="step-icon">▦</div>
+            <h3>Pilih tanggal & pesan</h3>
+            <p>Tentukan ukuran, atur tanggal sewa, lalu konfirmasi pesananmu.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">03 <span>↗</span></div>
+            <div class="step-icon">✧</div>
+            <h3>Siap jadi favoritmu!</h3>
+            <p>Selesaikan konfirmasi, ambil kostum, dan nikmati momenmu.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="about section-wrap" id="tentang">
+      <div class="about-visual"><img
+          src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85"
+          alt="Inspirasi fashion dan kostum kreatif">
+        <div class="about-sticker"><span>✦</span><b>Make it<br>your moment.</b></div>
+      </div>
+      <div class="about-copy"><span class="eyebrow">LEBIH DARI SEKADAR KOSTUM</span>
+        <h2>Kamu fokus<br>bersenang-senang.<br><span>Biar kami urus kostumnya.</span></h2>
+        <p>Cosplay pertama atau kesekian kalinya, kami ingin membantumu tampil percaya diri. Setiap kostum sebaiknya
+          diperiksa dan dibersihkan sebelum menemani petualanganmu.</p><a class="btn" href="gallery.php">Lihat Galeri
+          <span>↗</span></a>
+        <div class="about-points">
+          <div><span>✓</span>
+            <p><b>Selalu bersih dan siap pakai</b><small>Perawatan setelah setiap penyewaan.</small></p>
+          </div>
+          <div><span>✓</span>
+            <p><b>Teman cosplay yang bisa diandalkan</b><small>Proses jelas dan mudah dipahami.</small></p>
+          </div>
+          <div><span>✓</span>
+            <p><b>Rencanakan tanpa khawatir</b><small>Konfirmasi ketersediaan sebelum sewa.</small></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="community">
+      <div class="section-wrap community-inner">
+        <div><span class="eyebrow">CERITA DARI SESAMA COSPLAYER</span>
+          <h2>Momen mereka,<br><span>karakter mereka.</span></h2>
+          <p>Jadilah bagian dari cerita pertama kami. Setelah menyewa, bagikan pengalamanmu dan bantu cosplayer lain
+            menemukan karakter favoritnya.</p><a class="btn btn-light" href="#katalog">Temukan kostummu
+            <span>↗</span></a>
+        </div>
+        <div class="community-art"><span class="art-star star-a">✦</span><span class="art-star star-b">✧</span>
+          <div class="art-circle"><span>YOUR</span><b>STORY</b><span>STARTS HERE</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="kontak">
+    <div class="section-wrap footer-grid">
+      <div class="footer-brand"><a class="brand" href="#beranda"><span class="brand-mark">C</span><span>COSPLAY<span
+              class="brand-accent">RENT</span><small>KARAKTERMU, MOMENMU</small></span></a>
+        <p>Karakter favoritmu, kini lebih dekat.<br>Teman untuk setiap momen cosplay-mu.</p><span
+          class="footer-tag">Dibuat untuk para pecinta cosplay ✦</span>
+      </div>
+      <div>
+        <h4>Jelajahi</h4><a href="#katalog">Katalog Kostum</a><a href="#cara-sewa">Cara Sewa</a><a
+          href="#tentang">Tentang Kami</a>
+      </div>
+      <div>
+        <h4>Bantuan</h4><a href="#cara-sewa">Aturan Penyewaan</a><a href="#kontak">Pertanyaan Umum</a><a
+          href="#kontak">Pesanan Saya</a>
+      </div>
+      <div>
+        <h4>Mari Terhubung</h4>
+        <p>Punya pertanyaan atau ide karakter?</p><a class="contact-link" href="mailto:halo@cosplayrent.example">✉
+          Hubungi tim kami</a><a class="contact-link" href="#kontak">◎ Komunitas cosplay</a><span
+          class="footer-slogan">Sewa nyaman, tampil percaya diri.</span>
+      </div>
     </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     KATALOG / GALLERY
-========================================================= -->
-
-<section
-    id="katalog"
-    class="py-5"
->
-
-    <div class="container">
-
-
-        <!-- TITLE -->
-
-        <div class="text-center mb-5">
-
-            <span
-                class="
-                    text-uppercase
-                    text-gradient
-                    fw-bold
-                    tracking-widest
-                    small
-                "
-            >
-
-                — KOLEKSI KOSTUM —
-
-            </span>
-
-
-            <h2
-                class="
-                    title-fantasy
-                    display-5
-                    mt-2
-                "
-            >
-
-                KATALOG
-
-                <span class="text-gradient">
-                    KOSTUM
-                </span>
-
-            </h2>
-
-
-            <p class="text-secondary">
-
-                Semua data kostum diambil langsung
-                dari database COSPLAYRENT.
-
-            </p>
-
-        </div>
-
-
-
-        <!-- =====================================================
-             FILTER
-        ====================================================== -->
-
-        <div class="mb-5">
-
-
-            <!-- FILTER KOTA -->
-
-            <form
-                method="GET"
-                action="index.php#katalog"
-                class="row justify-content-center g-2"
-            >
-
-                <?php if ($kategori_filter !== ''): ?>
-
-                    <input
-                        type="hidden"
-                        name="kategori"
-                        value="<?= htmlspecialchars($kategori_filter) ?>"
-                    >
-
-                <?php endif; ?>
-
-
-                <div class="col-md-4">
-
-                    <select
-                        name="kota"
-                        class="form-select py-2"
-                        onchange="this.form.submit()"
-                    >
-
-                        <option value="">
-                            📍 Semua Lokasi Kota
-                        </option>
-
-
-                        <option
-                            value="Jakarta"
-                            <?= $kota_filter === 'Jakarta' ? 'selected' : '' ?>
-                        >
-                            Jakarta
-                        </option>
-
-
-                        <option
-                            value="Bandung"
-                            <?= $kota_filter === 'Bandung' ? 'selected' : '' ?>
-                        >
-                            Bandung
-                        </option>
-
-
-                        <option
-                            value="Yogyakarta"
-                            <?= $kota_filter === 'Yogyakarta' ? 'selected' : '' ?>
-                        >
-                            Yogyakarta
-                        </option>
-
-
-                        <option
-                            value="Surabaya"
-                            <?= $kota_filter === 'Surabaya' ? 'selected' : '' ?>
-                        >
-                            Surabaya
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </form>
-
-
-
-            <!-- FILTER KATEGORI DATABASE -->
-
-            <div
-                class="
-                    d-flex
-                    justify-content-center
-                    gap-2
-                    flex-wrap
-                    mt-3
-                "
-            >
-
-                <a
-                    href="index.php#katalog"
-                    class="
-                        filter-pill
-                        <?= $kategori_filter === '' ? 'active' : '' ?>
-                    "
-                >
-
-                    Semua
-
-                </a>
-
-
-                <?php if ($queryKategori): ?>
-
-                    <?php while ($kategori = mysqli_fetch_assoc($queryKategori)): ?>
-
-                        <a
-                            href="?kategori=<?= urlencode($kategori['nama_kategori']) ?>#katalog"
-                            class="
-                                filter-pill
-                                <?= $kategori_filter === $kategori['nama_kategori']
-                                    ? 'active'
-                                    : '' ?>
-                            "
-                        >
-
-                            <?= htmlspecialchars(
-                                $kategori['nama_kategori']
-                            ) ?>
-
-                        </a>
-
-                    <?php endwhile; ?>
-
-                <?php endif; ?>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- =====================================================
-             GALLERY GRID
-        ====================================================== -->
-
-        <div class="row g-4">
-
-
-            <?php if ($query && mysqli_num_rows($query) > 0): ?>
-
-
-                <?php while ($row = mysqli_fetch_assoc($query)): ?>
-
-
-                    <?php
-
-                    /* FOTO */
-
-                    $gambar = !empty($row['foto_url'])
-                        ? $row['foto_url']
-                        : 'images/default.jpg';
-
-
-                    /* STATUS */
-
-                    $status = strtolower(
-                        $row['status'] ?? ''
-                    );
-
-
-                    if ($status === 'tersedia') {
-
-                        $statusClass = 'status-tersedia';
-
-                    } elseif ($status === 'disewa') {
-
-                        $statusClass = 'status-disewa';
-
-                    } else {
-
-                        $statusClass = 'status-maintenance';
-
-                    }
-
-                    ?>
-
-
-                    <!-- CARD -->
-
-                    <div class="col-md-6 col-lg-4">
-
-
-                        <div
-                            class="
-                                glass-card
-                                costume-card
-                                p-3
-                                h-100
-                                d-flex
-                                flex-column
-                                justify-content-between
-                            "
-                        >
-
-
-                            <div>
-
-
-                                <!-- FOTO -->
-
-                                <div
-                                    class="
-                                        costume-image-wrapper
-                                        position-relative
-                                        mb-3
-                                    "
-                                >
-
-                                    <img
-                                        src="<?= htmlspecialchars($gambar) ?>"
-                                        class="costume-image"
-                                        alt="<?= htmlspecialchars(
-                                            $row['nama_kostum']
-                                        ) ?>"
-                                        loading="lazy"
-                                    >
-
-
-                                    <!-- STATUS -->
-
-                                    <span
-                                        class="
-                                            status-badge
-                                            <?= $statusClass ?>
-                                        "
-                                    >
-
-                                        •
-
-                                        <?= htmlspecialchars(
-                                            ucfirst($row['status'])
-                                        ) ?>
-
-                                    </span>
-
-                                </div>
-
-
-
-                                <!-- KATEGORI -->
-
-                                <span
-                                    class="
-                                        badge
-                                        bg-secondary
-                                        bg-opacity-25
-                                        text-info
-                                        mb-2
-                                    "
-                                >
-
-                                    <?= htmlspecialchars(
-                                        $row['nama_kategori']
-                                        ?? 'Cosplay'
-                                    ) ?>
-
-                                </span>
-
-
-
-                                <!-- NAMA KOSTUM -->
-
-                                <h4 class="fw-bold mb-1">
-
-                                    <?= htmlspecialchars(
-                                        $row['nama_kostum']
-                                    ) ?>
-
-                                </h4>
-
-
-
-                                <!-- KARAKTER -->
-
-                                <?php if (!empty($row['nama_karakter'])): ?>
-
-                                    <p
-                                        class="
-                                            text-secondary
-                                            small
-                                            mb-1
-                                        "
-                                    >
-
-                                        <i
-                                            class="
-                                                bi
-                                                bi-person
-                                                me-1
-                                            "
-                                        ></i>
-
-                                        Karakter:
-
-                                        <?= htmlspecialchars(
-                                            $row['nama_karakter']
-                                        ) ?>
-
-                                    </p>
-
-                                <?php endif; ?>
-
-
-
-                                <!-- SERIAL -->
-
-                                <?php if (!empty($row['nama_serial'])): ?>
-
-                                    <p
-                                        class="
-                                            text-secondary
-                                            small
-                                            mb-1
-                                        "
-                                    >
-
-                                        <i
-                                            class="
-                                                bi
-                                                bi-film
-                                                me-1
-                                            "
-                                        ></i>
-
-                                        <?= htmlspecialchars(
-                                            $row['nama_serial']
-                                        ) ?>
-
-                                    </p>
-
-                                <?php endif; ?>
-
-
-
-                                <!-- UKURAN -->
-
-                                <p
-                                    class="
-                                        text-secondary
-                                        small
-                                        mb-3
-                                    "
-                                >
-
-                                    <i
-                                        class="
-                                            bi
-                                            bi-rulers
-                                            me-1
-                                        "
-                                    ></i>
-
-                                    Ukuran:
-
-                                    <?= htmlspecialchars(
-                                        $row['ukuran']
-                                        ?? '-'
-                                    ) ?>
-
-                                </p>
-
-                            </div>
-
-
-
-                            <!-- HARGA + BUTTON -->
-
-                            <div
-                                class="
-                                    d-flex
-                                    align-items-center
-                                    justify-content-between
-                                    pt-3
-                                    border-top
-                                    border-secondary
-                                    border-opacity-25
-                                "
-                            >
-
-                                <div>
-
-                                    <span
-                                        class="
-                                            fs-5
-                                            fw-bold
-                                            text-gradient
-                                        "
-                                    >
-
-                                        Rp
-
-                                        <?= number_format(
-                                            (float) $row[
-                                                'harga_sewa_per_hari'
-                                            ],
-                                            0,
-                                            ',',
-                                            '.'
-                                        ) ?>
-
-                                    </span>
-
-
-                                    <small class="text-secondary">
-                                        /hari
-                                    </small>
-
-                                </div>
-
-
-
-                                <?php if ($status === 'tersedia'): ?>
-
-
-                                    <a
-                                        href="booking.php?id=<?= (int) $row['id'] ?>"
-                                        class="
-                                            btn
-                                            btn-neon
-                                            py-2
-                                            px-4
-                                        "
-                                    >
-
-                                        Lihat Detail
-
-                                    </a>
-
-
-                                <?php else: ?>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary py-2 px-3"
-                                        disabled
-                                    >
-
-                                        Tidak Tersedia
-
-                                    </button>
-
-
-                                <?php endif; ?>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                <?php endwhile; ?>
-
-
-            <?php else: ?>
-
-
-                <!-- EMPTY -->
-
-                <div class="col-12">
-
-                    <div class="empty-state text-secondary">
-
-                        <i
-                            class="
-                                bi
-                                bi-search
-                                fs-1
-                                d-block
-                                mb-3
-                            "
-                        ></i>
-
-
-                        <h5>
-                            Kostum tidak ditemukan
-                        </h5>
-
-
-                        <p>
-                            Belum ada kostum yang sesuai dengan filter.
-                        </p>
-
-
-                        <a
-                            href="index.php#katalog"
-                            class="btn btn-neon"
-                        >
-
-                            Lihat Semua Kostum
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-            <?php endif; ?>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     CARA SEWA
-========================================================= -->
-
-<section
-    id="cara-sewa"
-    class="py-5"
->
-
-    <div class="container">
-
-        <div class="text-center mb-5">
-
-            <span
-                class="
-                    text-uppercase
-                    text-gradient
-                    fw-bold
-                    small
-                "
-            >
-
-                — CARA SEWA —
-
-            </span>
-
-
-            <h2 class="title-fantasy display-5 mt-2">
-
-                CARA
-
-                <span class="text-gradient">
-                    SEWA
-                </span>
-
-            </h2>
-
-        </div>
-
-
-
-        <div class="row g-4">
-
-
-            <div class="col-md-4">
-
-                <div class="glass-card p-4 h-100">
-
-                    <i
-                        class="
-                            bi
-                            bi-search
-                            fs-1
-                            text-gradient
-                        "
-                    ></i>
-
-                    <h4 class="mt-3">
-                        1. Pilih Kostum
-                    </h4>
-
-                    <p class="text-secondary">
-
-                        Pilih kostum yang ingin kamu gunakan
-                        dari katalog yang tersedia.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="col-md-4">
-
-                <div class="glass-card p-4 h-100">
-
-                    <i
-                        class="
-                            bi
-                            bi-calendar-check
-                            fs-1
-                            text-gradient
-                        "
-                    ></i>
-
-                    <h4 class="mt-3">
-                        2. Tentukan Jadwal
-                    </h4>
-
-                    <p class="text-secondary">
-
-                        Tentukan tanggal penggunaan dan
-                        lakukan proses penyewaan.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="col-md-4">
-
-                <div class="glass-card p-4 h-100">
-
-                    <i
-                        class="
-                            bi
-                            bi-box-seam
-                            fs-1
-                            text-gradient
-                        "
-                    ></i>
-
-                    <h4 class="mt-3">
-                        3. Gunakan Kostum
-                    </h4>
-
-                    <p class="text-secondary">
-
-                        Kostum siap digunakan untuk event,
-                        photoshoot, atau kegiatan cosplay.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     EVENT
-========================================================= -->
-
-<section
-    id="event"
-    class="py-5"
->
-
-    <div class="container">
-
-        <div class="glass-card p-5 text-center">
-
-            <span
-                class="
-                    text-uppercase
-                    text-gradient
-                    fw-bold
-                    small
-                "
-            >
-
-                COSPLAYRENT
-
-            </span>
-
-
-            <h2 class="title-fantasy mt-2">
-
-                SIAP WUJUDKAN
-
-                <span class="text-gradient">
-                    KARAKTERMU?
-                </span>
-
-            </h2>
-
-
-            <p class="text-secondary">
-
-                Pilih kostum favoritmu dan mulai
-                pengalaman cosplay kamu sekarang.
-
-            </p>
-
-
-            <a
-                href="#katalog"
-                class="btn btn-neon mt-3"
-            >
-
-                Lihat Katalog
-
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     FOOTER
-========================================================= -->
-
-<footer
-    style="
-        background-color:#1e2130;
-        text-align:center;
-        padding:24px 16px;
-        color:#cfd2dc;
-    "
->
-
-    <p
-        style="
-            margin:0 0 10px;
-            font-size:15px;
-        "
-    >
-
-        Sistem Penyewaan Kostum Cosplay
-
-        &copy;
-
-        <?= date('Y') ?>
-
-        localhost/cosplayrent
-
-    </p>
-
-
-    <p
-        style="
-            margin:0;
-            font-size:14px;
-        "
-    >
-
-        <a
-            href="#"
-            style="
-                color:#8f8cf5;
-                text-decoration:none;
-                margin-right:16px;
-            "
-        >
-
-            @localhost/cosplayrent
-
-        </a>
-
-
-        <a
-            href="#"
-            style="
-                color:#8f8cf5;
-                text-decoration:none;
-            "
-        >
-
-            Kebijakan Privasi
-
-        </a>
-
-    </p>
-
-</footer>
-
-
-
-<!-- =========================================================
-     BACK TO TOP
-========================================================= -->
-
-<button
-    type="button"
-    id="backToTop"
-    aria-label="Kembali ke atas"
->
-
-    <i class="bi bi-arrow-up"></i>
-
-</button>
-
-
-
-<!-- =========================================================
-     BOOTSTRAP JS
-========================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-></script>
-
-
-
-<!-- =========================================================
-     CUSTOM JAVASCRIPT
-========================================================= -->
-
-<script src="assets/js/script.js"></script>
-
-
+    <div class="footer-bottom section-wrap"><span>© 2026 COSPLAYRENT. Semua hak dilindungi.</span><a
+        href="#beranda">Kembali ke atas ↑</a></div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
 </body>
 
 </html>

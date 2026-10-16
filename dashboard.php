@@ -1,130 +1,134 @@
+
 <?php
 session_start();
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/auth.php';
 
-require_once 'koneksi.php';
-
-// Cek apakah user sudah login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+// Pengguna wajib login.
+if (empty($_SESSION['user_id'])) {
+    header('Location: login.php');
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+// Ambil data pengguna dari database.
+$stmt = $pdo->prepare("
+    SELECT id, nama_lengkap, email, peran
+    FROM pengguna
+    WHERE id = ?
+    LIMIT 1
+");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$query = "SELECT p.*, COUNT(dp.id) AS total_item 
-          FROM penyewaan p 
-          LEFT JOIN detail_penyewaan dp 
-              ON p.id = dp.penyewaan_id 
-          WHERE p.pengguna_id = '$user_id' 
-          GROUP BY p.id 
-          ORDER BY p.dibuat_pada DESC";
-
-$result = mysqli_query($conn, $query);
-
-if (!$result) {
-    die("Query Error: " . mysqli_error($conn));
+if (!$user) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit;
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - CosplayRent</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard Pengguna | COSPLAYRENT</title>
+    <link rel="stylesheet" href="assets/style.css">
+
+    <style>
+        .dashboard { padding: 55px 0 80px; }
+        .welcome-card {
+            padding: 35px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #8b35e8, #b879f5);
+            color: white;
+            margin-bottom: 30px;
+        }
+        .welcome-card p { line-height: 1.7; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .dashboard-card {
+            padding: 25px;
+            background: white;
+            border: 1px solid #eee7f7;
+            border-radius: 18px;
+        }
+        .dashboard-card p {
+            color: #77738b;
+            overflow-wrap: anywhere;
+        }
+        .dashboard-icon {
+            font-size: 30px;
+            color: #8b35e8;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- SIDEBAR -->
-        <div class="col-md-2 p-4 min-vh-100 border-end border-secondary border-opacity-25" style="background: var(--nav-bg);">
-            <a href="index.php" class="text-decoration-none">
-                <h4 class="fw-bold tracking-wider mb-4">COSPLAY<span style="color:var(--neon-purple)">RENT</span></h4>
-            </a>
-            <div class="nav flex-column nav-pills gap-2">
-                <a class="nav-link active" href="#"><i class="bi bi-clock-history me-2"></i>Riwayat Sewa</a>
-                <a class="nav-link" href="index.php#katalog"><i class="bi bi-grid me-2"></i>Katalog Kostum</a>
-                <a class="nav-link text-danger mt-5" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Keluar</a>
-            </div>
-        </div>
+<header class="header">
+    <a class="brand" href="index.php">
+        <span class="brand-mark">C</span>
+        <span>COSPLAY<span class="brand-accent">RENT</span>
+            <small>KARAKTERMU, MOMENMU</small>
+        </span>
+    </a>
 
-        <!-- CONTENT AREA -->
-        <div class="col-md-10 p-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="title-fantasy mb-1">Halo, <span class="text-gradient"><?= $_SESSION['nama']; ?></span> 👋</h2>
-                    <p class="text-secondary">Kelola pesanan dan riwayat sewa kostummu di sini.</p>
-                </div>
-                <button class="btn rounded-circle d-flex align-items-center justify-content-center p-0" id="themeToggle" style="width: 42px; height: 42px;">
-                    <i class="bi bi-sun-fill text-warning"></i>
-                </button>
-            </div>
-
-            <div class="glass-card p-4">
-                <h5 class="fw-bold mb-4"><i class="bi bi-receipt me-2 text-info"></i>Pesanan Aktif & Riwayat</h5>
-                <div class="table-responsive">
-                    <table class="table align-middle text-nowrap" style="color: var(--text-primary);">
-                        <thead>
-                            <tr class="text-secondary border-bottom border-secondary border-opacity-25">
-                                <th>#ID PESANAN</th>
-                                <th>TANGGAL SEWA</th>
-                                <th>TOTAL BIAYA</th>
-                                <th>PEMBAYARAN</th>
-                                <th>STATUS SEWA</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (mysqli_num_rows($result) > 0): ?>
-                                <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                    <tr class="border-bottom border-secondary border-opacity-10">
-                                        <td class="fw-bold text-info">#RENT-<?= $row['id'] ?></td>
-                                        <td><?= $row['tanggal_mulai'] ?> s/d <?= $row['tanggal_selesai'] ?></td>
-                                        <td class="fw-bold text-gradient">Rp <?= number_format($row['total_biaya_sewa'], 0, ',', '.') ?></td>
-                                        <td><span class="badge bg-warning text-dark"><?= ucfirst($row['status_pembayaran']) ?></span></td>
-                                        <td><span class="badge bg-info text-dark"><?= ucfirst($row['status_sewa']) ?></span></td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-secondary">Belum ada transaksi penyewaan.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div class="nav-actions">
+        <a class="login-link" href="gallery.php">Galeri Kostum</a>
+        <a class="btn btn-small" href="logout.php">Keluar</a>
     </div>
-</div>
+</header>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const htmlElement = document.documentElement;
+<main class="section-wrap dashboard">
+    <section class="welcome-card">
+        <span>✦ DASHBOARD PENGGUNA</span>
 
-        const savedTheme = localStorage.getItem('cosplayrent_theme') || 'dark';
-        setTheme(savedTheme);
+        <h1>
+            Halo, <?= e($user['nama_lengkap']) ?>!
+        </h1>
 
-        themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = htmlElement.getAttribute('data-bs-theme');
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        });
+        <p>
+            Selamat datang di COSPLAYRENT.
+            Temukan kostum favoritmu untuk acara spesial berikutnya.
+        </p>
 
-        function setTheme(theme) {
-            htmlElement.setAttribute('data-bs-theme', theme);
-            localStorage.setItem('cosplayrent_theme', theme);
-            themeToggleBtn.innerHTML = theme === 'light' ? 
-                '<i class="bi bi-moon-stars-fill" style="color: #ff9800;"></i>' : 
-                '<i class="bi bi-sun-fill" style="color: #ffc107;"></i>';
-        }
-    });
-</script>
+        <a class="btn" href="gallery.php"
+           style="background:white;color:#8b35e8">
+            Jelajahi Galeri ↗
+        </a>
+    </section>
+
+    <h2>Informasi Akun</h2>
+
+    <section class="dashboard-grid">
+        <article class="dashboard-card">
+            <div class="dashboard-icon">👤</div>
+            <h3>Nama Pengguna</h3>
+            <p><?= e($user['nama_lengkap']) ?></p>
+        </article>
+
+        <article class="dashboard-card">
+            <div class="dashboard-icon">✉</div>
+            <h3>Email</h3>
+            <p><?= e($user['email']) ?></p>
+        </article>
+
+        <article class="dashboard-card">
+            <div class="dashboard-icon">✦</div>
+            <h3>Jenis Akun</h3>
+            <p><?= e(ucfirst($user['peran'] ?? 'pengguna')) ?></p>
+        </article>
+    </section>
+
+    <section class="dashboard-card" style="margin-top:25px">
+        <h2>Mulai Jelajahi Kostum</h2>
+        <p>Lihat koleksi kostum yang tersedia di COSPLAYRENT.</p>
+        <a class="btn" href="gallery.php">Lihat Galeri Kostum</a>
+    </section>
+</main>
+
 </body>
 </html>
