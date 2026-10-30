@@ -123,6 +123,14 @@ if (!$user) {
         </article>
     </section>
 
+    <?php if (($user['peran'] ?? '') === 'admin'): ?>
+    <section class="dashboard-card" style="margin-top:25px;border-color:#d9c2fb">
+        <h2>Panel Admin</h2>
+        <p>Kelola data kostum dan unggah foto galeri tanpa membuka file kode.</p>
+        <a class="btn" href="admin/kostum.php">Kelola Kostum ↗</a>
+    </section>
+    <?php endif; ?>
+
     <section class="dashboard-card" style="margin-top:25px">
         <h2>Mulai Jelajahi Kostum</h2>
         <p>Lihat koleksi kostum yang tersedia di COSPLAYRENT.</p>

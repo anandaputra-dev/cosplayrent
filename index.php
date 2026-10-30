@@ -3,15 +3,22 @@ session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/auth.php';
 
+$hasFoto = db_has_column($pdo, 'kostum', 'foto');
+$hasKota = db_has_column($pdo, 'kostum', 'kota');
+$fotoColumn = $hasFoto ? 'k.foto' : 'NULL AS foto';
+$kotaColumn = $hasKota ? 'k.kota' : 'NULL AS kota';
+
 $sql = "
     SELECT
         k.id,
         k.nama_kostum,
+        k.deskripsi,
         k.nama_karakter,
         k.nama_serial,
-        k.deskripsi,
-        k.harga_sewa_per_hari,
+        k.harga_sewa_per_hari AS harga_per_hari,
         k.status,
+        {$fotoColumn},
+        {$kotaColumn},
         c.nama_kategori AS kategori
     FROM kostum k
     LEFT JOIN kategori c ON c.id = k.kategori_id
@@ -79,7 +86,7 @@ $kostum = $pdo->query($sql)->fetchAll();
         <div class="hero-orbit orbit-one"></div>
         <div class="hero-orbit orbit-two"></div>
         <div class="hero-image"><img
-            src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1000&q=85"
+            src="assets\img\profilweb1.jpg"
             alt="Suasana acara cosplay dan kostum kreatif"></div>
         <div class="floating-card card-top"><span class="float-icon">✦</span><span><b>Kostum impianmu</b><small>Siap
               menemani momenmu</small></span></div>
@@ -121,7 +128,7 @@ $kostum = $pdo->query($sql)->fetchAll();
           <h2>Mau jadi siapa hari ini?</h2>
           <p>Pilih karakter favoritmu dan bersiaplah menciptakan momen seru.</p>
         </div>
-        <a class="text-link" href="gallery.php">Semua kategori <span>↗</span></a>
+        <a class="text-link" href="#katalog">Semua kategori <span>↗</span></a>
       </div>
       <div class="category-list" id="categoryList">
         <button class="category active" data-category="Semua">✦ <span>Semua</span></button>
@@ -140,30 +147,31 @@ $kostum = $pdo->query($sql)->fetchAll();
       </div>
       <div class="product-grid" id="productGrid">
         <?php foreach ($kostum as $item): ?>
-          <article class="product-card" data-category="<?= e($item['kategori'] ?? 'Kostum') ?>"
-            data-price="<?= (int) $item['harga_sewa_per_hari'] ?>" data-popular="<?= (int) $item['id'] ?>">
+          <article class="product-card" data-category="<?= htmlspecialchars($item['kategori']) ?>"
+            data-price="<?= (int) $item['harga_per_hari'] ?>" data-popular="<?= (int) $item['id'] ?>">
             <div class="product-image">
-              <img src="assets/placeholder.svg"
-                alt="<?= e($item['nama_kostum']) ?>" loading="lazy">
+              <img src="<?= htmlspecialchars($item['foto'] ?: 'assets/placeholder.svg') ?>"
+                alt="<?= htmlspecialchars($item['nama_kostum']) ?>" loading="lazy">
               <span class="product-badge">✦ Koleksi COSPLAYRENT</span>
               <button class="favorite" type="button" aria-label="Simpan favorit">♡</button>
             </div>
             <div class="product-info">
-              <div class="product-meta"><span><?= e(strtoupper($item['kategori'] ?? 'KOSTUM')) ?></span><span
-                  class="availability"><i></i> <?= e(ucfirst($item['status'] ?? 'Perlu konfirmasi')) ?></span></div>
-              <h4><?= e($item['nama_kostum']) ?></h4>
-              <p><?= e($item['deskripsi'] ?: 'Kostum cosplay pilihan') ?></p>
+              <div class="product-meta"><span><?= htmlspecialchars(strtoupper($item['kategori'])) ?></span><span
+                  class="availability"><i></i> <?= in_array(strtolower((string)($item['status'] ?? '')), ['tersedia', 'ready', 'aktif']) ? 'Tersedia' : ucfirst((string)($item['status'] ?? 'Perlu konfirmasi')) ?></span></div>
+              <h4><?= htmlspecialchars($item['nama_kostum']) ?></h4>
+              <p><?= htmlspecialchars($item['deskripsi'] ?: 'Kostum cosplay pilihan') ?></p>
               <div class="product-bottom">
-                <div class="price">Rp<?= number_format((int) $item['harga_sewa_per_hari'], 0, ',', '.') ?> <small>/
+                <div class="price">Rp<?= number_format((int) $item['harga_per_hari'], 0, ',', '.') ?> <small>/
                     hari</small>
                 </div>
                 <a class="add-button" href="detail.php?id=<?= (int) $item['id'] ?>"
-                  aria-label="Lihat detail <?= e($item['nama_kostum']) ?>">↗</a>
+                  aria-label="Lihat detail <?= htmlspecialchars($item['nama_kostum']) ?>">↗</a>
               </div>
             </div>
           </article>
         <?php endforeach; ?>
       </div>
+      <div style="text-align:center;margin:24px 0 10px"><a class="btn" href="gallery.php">Lihat semua kostum ↗</a></div>
       <p class="catalog-disclaimer">Katalog contoh · Foto merupakan ilustrasi cosplay. Ketersediaan dan detail kostum
         perlu dikonfirmasi sebelum pemesanan.</p>
       <div class="empty-state" id="emptyState" hidden>Belum ada kostum pada kategori ini. Coba pilih kategori lainnya ✨
@@ -201,7 +209,7 @@ $kostum = $pdo->query($sql)->fetchAll();
 
     <section class="about section-wrap" id="tentang">
       <div class="about-visual"><img
-          src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85"
+          src="assets\img\profilweb2.jpg"
           alt="Inspirasi fashion dan kostum kreatif">
         <div class="about-sticker"><span>✦</span><b>Make it<br>your moment.</b></div>
       </div>
