@@ -199,25 +199,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <label for="email">Email</label>
-            <input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Masukkan email"
-                required
-                autocomplete="email"
-                value="<?= e($_POST['email'] ?? '') ?>"
-            >
+            <input id="email" type="email" name="email" placeholder="Masukkan email" required autocomplete="email"
+                value="<?= e($_POST['email'] ?? '') ?>">
 
             <label for="password">Kata sandi</label>
-            <input
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Masukkan kata sandi"
-                required
-                autocomplete="current-password"
-            >
+            <input id="password" type="password" name="password" placeholder="Masukkan kata sandi" required
+                autocomplete="current-password">
 
             <button class="btn" type="submit">
                 Masuk ↗
@@ -232,5 +219,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
 </body>
+
 </html>
 ```
