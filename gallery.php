@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 require_once __DIR__ . '/config/database.php';
@@ -15,10 +14,19 @@ $hasFoto = db_has_column($pdo, 'kostum', 'foto');
 
 // Daftar kota
 $kotaList = [
-    'Bandung', 'Bekasi', 'Bogor', 'Depok',
-    'Jakarta', 'Malang', 'Medan', 'Palembang',
-    'Semarang', 'Sidoarjo', 'Surabaya',
-    'Tangerang', 'Yogyakarta'
+    'Bandung',
+    'Bekasi',
+    'Bogor',
+    'Depok',
+    'Jakarta',
+    'Malang',
+    'Medan',
+    'Palembang',
+    'Semarang',
+    'Sidoarjo',
+    'Surabaya',
+    'Tangerang',
+    'Yogyakarta'
 ];
 
 if ($hasKota) {
@@ -51,33 +59,24 @@ $kotaSelect = $hasKota ? 'k.kota' : 'NULL AS kota';
 // Query utama
 $sql = "
     SELECT
-        k.id,
+        k.id_kostum,
         k.nama_kostum,
         k.nama_karakter,
-        k.nama_serial,
-        k.ukuran,
+        k.asal_seri,
         k.deskripsi,
         k.harga_sewa_per_hari,
-        k.status,
-        {$kotaSelect},
-        {$fotoSelect},
+        k.foto,
         c.nama_kategori AS kategori
     FROM kostum k
-    LEFT JOIN kategori c ON c.id = k.kategori_id
+    LEFT JOIN kategori c ON c.id = k.id_kategori
     WHERE 1=1
 ";
 
 $params = [];
 
-// Filter kota
-if ($kotaDipilih !== '' && $hasKota) {
-    $sql .= " AND k.kota = ?";
-    $params[] = $kotaDipilih;
-}
-
 // Filter kategori
 if ($kategoriDipilih !== '' && ctype_digit($kategoriDipilih)) {
-    $sql .= " AND k.kategori_id = ?";
+    $sql .= " AND k.id_kategori = ?";
     $params[] = (int) $kategoriDipilih;
 }
 
@@ -87,7 +86,7 @@ if ($cari !== '') {
         AND (
             k.nama_kostum LIKE ?
             OR k.nama_karakter LIKE ?
-            OR k.nama_serial LIKE ?
+            OR k.asal_seri LIKE ?
         )
     ";
 
@@ -96,13 +95,13 @@ if ($cari !== '') {
     array_push($params, $term, $term, $term);
 }
 
-$sql .= " ORDER BY k.id DESC";
+// Urutkan kostum terbaru
+$sql .= " ORDER BY k.id_kostum DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 
 $kostum = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 
 // Fungsi mengambil foto pertama dari database
 function fotoKostum(?string $foto): ?string
@@ -424,7 +423,7 @@ function fotoKostum(?string $foto): ?string
                 width: 100%;
             }
 
-            .filter-actions > * {
+            .filter-actions>* {
                 flex: 1;
             }
         }
@@ -513,8 +512,7 @@ function fotoKostum(?string $foto): ?string
                     name="cari"
                     type="search"
                     placeholder="Cari nama kostum atau karakter..."
-                    value="<?= e($cari) ?>"
-                >
+                    value="<?= e($cari) ?>">
             </div>
 
 
@@ -529,8 +527,7 @@ function fotoKostum(?string $foto): ?string
 
                         <option
                             value="<?= e($kota) ?>"
-                            <?= $kotaDipilih === $kota ? 'selected' : '' ?>
-                        >
+                            <?= $kotaDipilih === $kota ? 'selected' : '' ?>>
                             <?= e($kota) ?>
                         </option>
 
@@ -551,8 +548,7 @@ function fotoKostum(?string $foto): ?string
 
                         <option
                             value="<?= (int) $kat['id'] ?>"
-                            <?= $kategoriDipilih === (string) $kat['id'] ? 'selected' : '' ?>
-                        >
+                            <?= $kategoriDipilih === (string) $kat['id'] ? 'selected' : '' ?>>
                             <?= e($kat['nama_kategori']) ?>
                         </option>
 
@@ -644,8 +640,7 @@ function fotoKostum(?string $foto): ?string
                                     src="<?= e($fotoUrl) ?>"
                                     alt="<?= e($item['nama_kostum']) ?>"
                                     loading="lazy"
-                                    onerror="this.style.display='none';this.parentElement.classList.add('no-photo');"
-                                >
+                                    onerror="this.style.display='none';this.parentElement.classList.add('no-photo');">
 
                             <?php else: ?>
 
@@ -707,11 +702,11 @@ function fotoKostum(?string $foto): ?string
                             <div class="costume-price">
 
                                 Rp<?= number_format(
-                                    (float) $item['harga_sewa_per_hari'],
-                                    0,
-                                    ',',
-                                    '.'
-                                ) ?>
+                                        (float) $item['harga_sewa_per_hari'],
+                                        0,
+                                        ',',
+                                        '.'
+                                    ) ?>
 
                                 <small>/ hari</small>
 
@@ -730,8 +725,7 @@ function fotoKostum(?string $foto): ?string
 
                                 <a
                                     class="btn btn-small"
-                                    href="detail.php?id=<?= (int) $item['id'] ?>"
-                                >
+                                    href="detail.php?id=<?= (int) $item['id'] ?>">
                                     Detail ↗
                                 </a>
 
@@ -750,4 +744,5 @@ function fotoKostum(?string $foto): ?string
     </main>
 
 </body>
+
 </html>

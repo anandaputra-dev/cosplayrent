@@ -99,4 +99,3 @@ document.querySelectorAll('a[href="#kontak"]').forEach((link) => {
 });
 
 updateProducts();
-

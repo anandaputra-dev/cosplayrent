@@ -14,19 +14,17 @@ $kotaColumn = $hasKota ? 'k.kota' : 'NULL AS kota';
 // Ambil data kostum terbaru
 $sql = "
     SELECT
-        k.id,
+        k.id_kostum,
         k.nama_kostum,
         k.deskripsi,
         k.nama_karakter,
-        k.nama_serial,
+        k.asal_seri,
         k.harga_sewa_per_hari AS harga_per_hari,
-        k.status,
-        {$fotoColumn},
-        {$kotaColumn},
+        k.foto,
         c.nama_kategori AS kategori
     FROM kostum k
-    LEFT JOIN kategori c ON c.id = k.kategori_id
-    ORDER BY k.id DESC
+    LEFT JOIN kategori c ON c.id = k.id_kategori
+    ORDER BY k.id_kostum DESC
     LIMIT 8
 ";
 
@@ -107,31 +105,34 @@ function fotoKostum($foto)
     </button>
 
     <nav class="nav" id="nav">
-        <a class="active" href="#beranda">Beranda</a>
-        <a href="#katalog">Katalog Kostum</a>
-        <a href="#cara-sewa">Cara Sewa</a>
-        <a href="#tentang">Tentang Kami</a>
-    </nav>
+    <a class="active" href="#beranda">Beranda</a>
+    <a href="#katalog">Katalog Kostum</a>
+    <a href="event.php">Jadwal Event</a>
+    <a href="booking.php">Booking</a>
+    <a href="#cara-sewa">Cara Sewa</a>
+    <a href="#tentang">Tentang Kami</a>
+</nav>
+<div class="nav-actions">
 
-    <div class="nav-actions">
+    <?php if (isset($_SESSION['user_id'])): ?>
 
-        <?php if (isset($_SESSION['user_id'])): ?>
+        <a class="login-link" href="dashboard.php">Akun Saya</a>
 
-            <a class="login-link" href="dashboard.php">Akun Saya</a>
-            <a class="btn btn-small" href="logout.php">
-                Keluar <span>↗</span>
-            </a>
+        <a class="btn btn-small" href="logout.php">
+            Keluar <span>↗</span>
+        </a>
 
-        <?php else: ?>
+    <?php else: ?>
 
-            <a class="login-link" href="login.php">Masuk</a>
-            <a class="btn btn-small" href="register.php">
-                Daftar <span>↗</span>
-            </a>
+        <a class="login-link" href="login.php">Masuk</a>
 
-        <?php endif; ?>
+        <a class="btn btn-small" href="register.php">
+            Daftar <span>↗</span>
+        </a>
 
-    </div>
+    <?php endif; ?>
+
+</div>
 
 </header>
 

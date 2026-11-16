@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/auth.php';
 
@@ -9,10 +10,6 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 $error = '';
-$peranDipilih = $_POST['peran'] ?? 'pengguna';
-if (!in_array($peranDipilih, ['pengguna', 'admin'], true)) {
-    $peranDipilih = 'pengguna';
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama = trim($_POST['nama_lengkap'] ?? '');
@@ -28,17 +25,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Konfirmasi kata sandi tidak sama.';
     } else {
         try {
-            $stmt = $pdo->prepare('INSERT INTO pengguna (nama_lengkap,email,kata_sandi,peran) VALUES (?,?,?,?)');
-            $stmt->execute([
-                $nama,
-                $email,
-                password_hash($password, PASSWORD_DEFAULT),
-                $peranDipilih
-            ]);
-            header('Location: login.php?daftar=berhasil');
-            exit;
+            // Periksa apakah email sudah digunakan.
+            $cek = $pdo->prepare(
+                "SELECT id_pelanggan
+                 FROM pelanggan
+                 WHERE email = ?
+                 LIMIT 1"
+            );
+
+            $cek->execute([$email]);
+
+            if ($cek->fetch()) {
+                $error = 'Email sudah terdaftar.';
+            } else {
+                // Simpan pelanggan baru.
+                $stmt = $pdo->prepare(
+                    "INSERT INTO pelanggan
+                    (nama_lengkap, email, password)
+                    VALUES (?, ?, ?)"
+                );
+
+                $stmt->execute([
+                    $nama,
+                    $email,
+                    password_hash($password, PASSWORD_DEFAULT)
+                ]);
+
+                header('Location: login.php?daftar=berhasil');
+                exit;
+            }
         } catch (PDOException $e) {
-            $error = $e->getCode() === '23000' ? 'Email sudah terdaftar.' : 'Pendaftaran gagal. Coba lagi.';
+            $error = 'Pendaftaran gagal: ' . $e->getMessage();
         }
     }
 }
@@ -172,12 +189,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input id="email" type="email" name="email" required autocomplete="email"
                 value="<?= e($_POST['email'] ?? '') ?>">
 
-            <label for="peran">Daftar sebagai</label>
-            <select id="peran" name="peran" required>
-                <option value="pengguna" <?= $peranDipilih === 'pengguna' ? 'selected' : '' ?>>Pelanggan</option>
-                <option value="admin" <?= $peranDipilih === 'admin' ? 'selected' : '' ?>>Admin</option>
+            <label>Daftar Sebagai</label>
+            <select name="peran" required>
+                <option value="pelanggan">Pelanggan</option>
+                <option value="admin">Admin</option>
             </select>
-            <p class="role-help">Pelanggan dapat melihat galeri. Admin dapat mengelola data dan foto kostum.</p>
+
+            <p class="role-help">
+                Akun pelanggan dapat digunakan untuk melihat katalog
+                dan melakukan penyewaan kostum.
+            </p>
 
             <label for="kata_sandi">Kata sandi (minimal 8 karakter)</label>
             <input id="kata_sandi" type="password" name="kata_sandi" minlength="8" required autocomplete="new-password">

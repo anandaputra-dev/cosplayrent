@@ -10,13 +10,14 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
-// Ambil data pengguna dari database.
+// Ambil data pelanggan dari database.
 $stmt = $pdo->prepare("
-    SELECT id, nama_lengkap, email, peran
-    FROM pengguna
-    WHERE id = ?
+    SELECT id_pelanggan, nama_lengkap, email
+    FROM pelanggan
+    WHERE id_pelanggan = ?
     LIMIT 1
 ");
+
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -26,6 +27,8 @@ if (!$user) {
     header('Location: login.php');
     exit;
 }
+
+$user['peran'] = 'pelanggan';
 ?>
 <!DOCTYPE html>
 <html lang="id">

@@ -12,21 +12,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $stmt = $pdo->prepare(
-            "SELECT id, nama_lengkap, email, kata_sandi, peran
-             FROM pengguna
-             WHERE email = ?
-             LIMIT 1"
+            "SELECT id_pelanggan, nama_lengkap, email, password
+         FROM pelanggan
+         WHERE email = ?
+         LIMIT 1"
         );
 
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['kata_sandi'])) {
+        if ($user && password_verify($password, $user['password'])) {
             session_regenerate_id(true);
 
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['id_pelanggan'];
             $_SESSION['nama'] = $user['nama_lengkap'];
-            $_SESSION['peran'] = $user['peran'];
+            $_SESSION['peran'] = 'pelanggan';
 
             header('Location: dashboard.php');
             exit;
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $error = 'Email atau kata sandi tidak sesuai.';
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan saat mengakses database. Periksa konfigurasi database.';
+        $error = 'Terjadi kesalahan saat mengakses database: ' . $e->getMessage();
     }
 }
 ?>
